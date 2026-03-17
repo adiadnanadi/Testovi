@@ -870,44 +870,45 @@ async function generateTest() {
   // Update banner immediately with entered data
   updateBanner(predmet, tema);
 
-  const systemPrompt = `Ti si LaTeX ekspert koji generiše testove znanja. Generiši test koji POTPUNO ISPUNAVA obje stranice A4 papira — bez ikakvog praznog prostora na dnu.
+  const systemPrompt = `Ti si LaTeX ekspert koji generiše testove znanja. Generiši test koji APSOLUTNO POPUNJAVA obje stranice A4 — tekst mora ići do samog dna svake stranice bez ikakvog praznog prostora.
 
-KRITIČNA PRAVILA — MORAJU SE POŠTOVATI:
+KRITIČNA PRAVILA:
 
-=== PUNJENJE STRANICA (NAJVAŽNIJE) ===
-- Test MORA imati TAČNO 2 stranice A4
-- STRANICA 1 MORA BITI POTPUNO PUNA — sadržaj do samog dna stranice
-- STRANICA 2 MORA BITI POTPUNO PUNA — zadaci + tabela bodovanja + potpis na samom dnu
-- NEMA BELIH/PRAZNIH POVRŠINA na dnu nijedne stranice
+=== BROJ PITANJA — OBAVEZNO ===
+- Zadatak 1 (Višestruki izbor): TAČNO 8 pitanja (svako pitanje sa 4 ponuđena odgovora a/b/c/d)
+- Zadatak 2 (Tačno/Netačno): TAČNO 8 tvrdnji
+- Zadatak 3 (Dopuni rečenice): TAČNO 7 rečenica sa \\linija
+- Zadatak 4 (Poveži pojmove): tabela sa 6 redova (6 pojmova — 6 objašnjenja)
+- Zadatak 5 (Kratki odgovori): TAČNO 4 pitanja, svako sa \\vspace{2cm}
+- Zadatak 6 (Nabrajanje): 3 podpitanja, svako traži 4 stavke
+- Zadatak 7-10 (Stranica 2): svako podpitanje sa \\vspace{2.5cm}, po 4 podpitanja po zadatku
 
-=== VELIKI RAZMACI IZMEĐU PITANJA (KLJUČNO ZA PUNJENJE) ===
-- Koristi ZNATNO VEĆE razmake između svih pitanja:
-  - IZMEĐU ZADATAKA: \\vspace{0.8em} do \\vspace{1.2em}
-  - UNUTAR ZADATAKA (itemsep): 0.6em do 0.8em
-  - NAKON NASLOVA ZADATKA: \\vspace{0.5em}
-- Za esejska pitanja (zadaci 7, 8, 9, 10):
-  - \\vspace{2.5cm} do \\vspace{3cm} za svako podpitanje
-  - Ako je potrebno: \\vspace{3.5cm} da se popuni stranica
-- Razmaci moraju biti DOVOLJNO VELIKI da se cijela stranica popuni ravnomjerno
+=== PUNJENJE STRANICA — APSOLUTNO OBAVEZNO ===
+- Stranica 1 MORA biti popunjena DO SAMOG DNA do \\hrule linije
+- Stranica 2 MORA biti popunjena DO SAMOG DNA — zadaci 7-10, pa tabela bodovanja, pa potpis tačno na dnu
+- Ako ima prostora: povećaj \\vspace vrijednosti ili dodaj još pitanja
+- Ako nema prostora: smanji \\vspace ali NIKADA ne izbacuj pitanja
+- Koristiti \\vfill unutar multicols NE radi — koristi eksplicitne \\vspace{Xcm} vrijednosti
 
-=== STRUKTURA ZADATAKA ===
-- Stranica 1: zadaci 1-6 u multicols{2}, svaki zadatak ima dovoljno razmaka
-- \\newpage 
-- Stranica 2: zadaci 7-10 u multicols{2}, potom tabela bodovanja na dnu
-- NEMA bonus zadatka
-- Font: \\small za sva pitanja
+=== RAZMACI — PRECIZNE VRIJEDNOSTI ===
+- itemsep između pitanja: 0.55em
+- \\vspace između zadataka: 0.9em
+- Nakon naslova zadatka: \\vspace{0.4em}
+- Esejska pitanja (str. 2): \\vspace{2.5cm} za 2b, \\vspace{3cm} za 3b pitanje
+- Na kraju svake kolone stranice 1: \\vspace{Xcm} da se popuni do dna (procijeni X)
 
-=== SADRŽAJ ===
-- 10 zadataka sa različitim tipovima pitanja
-- Ukupno bodova: tačno onoliko koliko je zadano
-- Stručna terminologija za zadani predmet i temu
+=== STRUKTURA ===
+- Stranica 1: zadaci 1–6 u multicols{2}
+- \\newpage
+- Stranica 2: zadaci 7–10 u multicols{2}, zatim tabela bodovanja, zatim potpis
+- Font \\small za sva pitanja i odgovore
 - Jezik: bosanski/hrvatski ijekavica
 
-=== ODGOVOR ===
-- SAMO LaTeX kod od \\documentclass do \\end{document}
-- Bez objašnjenja, bez markdown`;
+=== FORMAT ODGOVORA ===
+- SAMO LaTeX od \\documentclass do \\end{document}
+- Bez ikakvog teksta, objašnjenja ili markdown blokova`;
 
-  const userPrompt = `Referentni LaTeX dokument:
+  const userPrompt = `Referentni LaTeX dokument (koristi isti preamble i stil):
 
 ${ORIGINAL_DOC}
 
@@ -922,15 +923,20 @@ GENERIŠI TEST ZA:
 - Težina: ${tezina}
 ${napomene ? `- Napomene: ${napomene}` : ''}
 
-NAJVAŽNIJE — VELIKI RAZMACI ZA PUNJENJE STRANICA:
-- Koristi ZNATNO VEĆE razmake između pitanja nego u primjeru:
-  - itemsep: 0.6em do 0.8em (umjesto 0.3em)
-  - \\vspace između zadataka: 0.8em do 1.2em
-  - Za esejska pitanja: \\vspace{2.5cm} do \\vspace{3.5cm}
-- Stranica 1: popuni do dna (do \\hrule)
-- Stranica 2: zadaci 7-10 sa velikim razmacima, potom tabela na dnu
-- NEMA praznog prostora na dnu!
-- Vrati kompletan LaTeX dokument`;
+OBAVEZNI BROJ PITANJA (ne smanji):
+- Zadatak 1: 8 pitanja višestrukog izbora (a/b/c/d)
+- Zadatak 2: 8 tačno/netačno tvrdnji
+- Zadatak 3: 7 dopuni rečenice
+- Zadatak 4: tabela 6×2 pojam–objašnjenje
+- Zadatak 5: 4 kratka odgovora sa \\vspace{2cm} svako
+- Zadatak 6: 3 nabrajanja po 4 stavke
+- Zadaci 7–10 (str. 2): po 4 podpitanja, \\vspace{2.5cm}–\\vspace{3cm} svako
+
+PUNJENJE DO DNA — KRITIČNO:
+- Na kraju kolona stranice 1 dodaj dovoljno \\vspace{Xcm} da tekst ide do \\hrule
+- Na stranici 2 povećaj \\vspace vrijednosti dok tabela bodovanja ne bude tačno pri dnu
+- Svaka A4 stranica treba izgledati potpuno popunjena kao u štampanom testu
+- Vrati KOMPLETAN LaTeX dokument`;
 
   try {
     setLoadingPct(20, 'Priprema podataka...');

@@ -12,7 +12,7 @@ from flask import Flask, send_file, request, jsonify, Response
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
+CORS(app)  # ← DODAJ OVO - omogućava CORS za sve rute
 
 BASE_DIR    = Path(__file__).parent
 HTML_FILE   = BASE_DIR / "generator-testova.html"
@@ -21,10 +21,12 @@ MISTRAL_URL = "https://api.mistral.ai/v1/chat/completions"
 
 def get_api_key():
     """Učitaj API ključ iz environment varijable ili .env fajla."""
+    # Prvo provjeri environment varijablu (važno za Render)
     key = os.environ.get("MISTRAL_API_KEY", "").strip()
     if key:
         return key
     
+    # Fallback na .env fajl (za lokalni razvoj)
     env_file = BASE_DIR / ".env"
     if env_file.exists():
         for line in env_file.read_text(encoding="utf-8").splitlines():
@@ -98,9 +100,62 @@ def compile_latex():
                 pdf_bytes,
                 status=200,
                 mimetype="application/pdf"
+                # CORS je već pokriven globalno s CORS(app)
             )
         else:
             return jsonify({
                 "error": "LaTeX kompajliranje nije uspjelo",
                 "log": pdf_bytes.decode("utf-8", errors="replace")[:500]
             }), 422
+
+    except urllib.error.HTTPError as e:
+        err = e.read().decode("utf-8", errors="replace")
+        return jsonify({"error": "TeXLive HTTP greska " + str(e.code), "log": err[:300]}), 502
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/mistral", methods=["POST"])
+def mistral_proxy():
+    try:
+        data = request.get_json()
+
+        api_key = get_api_key()
+        if not api_key:
+            api_key = data.pop("__api_key", "")
+        else:
+            data.pop("__api_key", None)
+
+        if not api_key:
+            return jsonify({"error": {"message": "API kljuc nije postavljen."}}), 400
+
+        payload = json.dumps(data).encode("utf-8")
+        req = urllib.request.Request(
+            MISTRAL_URL,
+            data=payload,
+            headers={
+                "Content-Type":  "application/json",
+                "Authorization": f"Bearer {api_key}"
+            },
+            method="POST"
+        )
+
+        with urllib.request.urlopen(req, timeout=180) as resp:
+            body = resp.read()
+
+        return Response(body, status=200, mimetype="application/json")
+
+    except urllib.error.HTTPError as e:
+        err = e.read()
+        return Response(err, status=e.code, mimetype="application/json")
+
+    except Exception as e:
+        return jsonify({"error": {"message": str(e)}}), 500
+
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8080))
+    key = get_api_key()
+    print(f"\n  Generator Testova: http://localhost:{port}")
+    print(f"  Kljuc: {key[:8] + '...' + key[-4:] if key else 'NIJE POSTAVLJEN'}\n")
+    app.run(host="0.0.0.0", port=port, debug=False)

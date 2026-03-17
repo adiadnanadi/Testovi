@@ -17,7 +17,6 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--ink);font-family:'Lora',Georgia,serif;min-height:100vh;overflow-x:hidden;position:relative}
 
-/* Animated background particles */
 body::before{content:'';position:fixed;inset:0;
   background:radial-gradient(ellipse at 15% 15%,rgba(0,58,112,.4) 0%,transparent 55%),
              radial-gradient(ellipse at 85% 85%,rgba(200,146,26,.2) 0%,transparent 55%),
@@ -27,7 +26,6 @@ body::before{content:'';position:fixed;inset:0;
 
 .page-wrap{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:40px 24px 80px}
 
-/* ===== FLOATING PARTICLES ===== */
 .particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 .particle{position:absolute;border-radius:50%;opacity:0;animation:floatup linear infinite}
 @keyframes floatup{
@@ -37,7 +35,6 @@ body::before{content:'';position:fixed;inset:0;
   100%{transform:translateY(-20px) scale(1);opacity:0}
 }
 
-/* ===== HEADER ===== */
 header{text-align:center;padding:56px 0 48px;position:relative}
 header::after{content:'';display:block;width:160px;height:2px;
   background:linear-gradient(90deg,transparent,var(--gold),transparent);
@@ -57,7 +54,6 @@ header h1 span{color:var(--gold-light)}
 @keyframes fadein{to{opacity:1}}
 @keyframes slidein{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
-/* ===== CARD ===== */
 .card{background:var(--paper);border-radius:6px;
   box-shadow:0 8px 60px var(--shadow),inset 0 1px 0 rgba(255,255,255,.9);
   position:relative;overflow:hidden;
@@ -95,7 +91,6 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
   font-family:'DM Mono',monospace;font-size:10.5px;color:#7a5008;line-height:1.75}
 .info-banner strong{color:#6a4006}
 
-/* ===== BUTTON ===== */
 .btn-generate{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;
   letter-spacing:.5px;cursor:pointer;border:none;border-radius:4px;
   background:var(--blue);color:var(--paper);width:100%;
@@ -116,7 +111,6 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
   animation:spin .6s linear infinite;display:none;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ===== STATUS ===== */
 .status-bar{padding:13px 17px;border-radius:4px;font-family:'DM Mono',monospace;
   font-size:12px;margin-top:20px;display:none;gap:10px;align-items:center}
 .status-bar.info{background:rgba(0,87,168,.1);color:var(--blue);border:1px solid rgba(0,87,168,.2);display:flex}
@@ -128,7 +122,6 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
 .error .status-dot{background:var(--red)}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.7)}}
 
-/* ===== LOADING OVERLAY ===== */
 .loading-overlay{position:fixed;inset:0;background:rgba(15,15,20,.92);
   z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;
   backdrop-filter:blur(8px)}
@@ -160,7 +153,6 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
   animation:factfade 4s ease-in-out infinite}
 @keyframes factfade{0%,100%{opacity:.4}50%{opacity:1}}
 
-/* ===== PDF SECTION ===== */
 .pdf-section{margin-top:40px;display:none}
 .pdf-section.visible{display:block;animation:cardrise .6s ease forwards}
 .pdf-header{display:flex;align-items:center;justify-content:space-between;
@@ -234,10 +226,8 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
 </head>
 <body>
 
-<!-- Floating particles -->
 <div class="particles" id="particles"></div>
 
-<!-- Loading Overlay -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-orb">
     <div class="orb-ring"></div>
@@ -376,7 +366,7 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
 
 <script>
 const WORKER_URL = '';
-const API_BASE = WORKER_URL || '';
+const API_BASE =WORKER_URL || '';
 
 (function(){
   const container = document.getElementById('particles');
@@ -774,28 +764,28 @@ async function generateTest() {
   showLoading();
   document.getElementById('pdfSection').classList.remove('visible');
 
-  const systemPrompt = `Ti si LaTeX ekspert koji generiše testove znanja. Generiši test koji POTPUNO ISPUNJAVA obje stranice A4 papira — bez ikakvog praznog prostora na dnu.
+  const systemPrompt = `Ti si LaTeX ekspert koji generiše testove znanja. Generiši test koji POTPUNO ISPUNAVA obje stranice A4 papira — bez ikakvog praznog prostora na dnu.
 
 KRITIČNA PRAVILA — MORAJU SE POŠTOVATI:
 
 === PUNJENJE STRANICA (NAJVAŽNIJE) ===
 - Test MORA imati TAČNO 2 stranice A4
-- STRANICA 1 MORA BITI POTPUNO PUNA — sadržaj do samog dna stranice (do \\hrule linije)
-- STRANICA 2 MORA BITI POTPUNO PUNA — zadaci + tabela bodovanja + potpis MORAJU završiti na samom dnu stranice
+- STRANICA 1 MORA BITI POTPUNO PUNA — sadržaj do samog dna stranice
+- STRANICA 2 MORA BITI POTPUNO PUNA — zadaci + tabela bodovanja + potpis na samom dnu
 - NEMA BELIH/PRAZNIH POVRŠINA na dnu nijedne stranice
-- Koristi \\vspace da ravnomjerno rasporediš sadržaj po cijeloj visini stranice
 
-=== TEHNIČKA RJEŠENJA ZA PUNJENJE ===
-- Na stranici 1: povećaj razmake između zadataka (\\vspace{0.5em} ili više) da se popuni prostor do dna
-- Na stranici 2: 
-  - Zadaci 7 i 8 (esejski): koristi \\vspace{2cm} ili čak \\vspace{2.5cm} za svako pitanje
-  - Zadaci 9 i 10: koristi \\vspace{1.5cm} do \\vspace{2cm}
-  - Na kraju: tabela bodovanja + potpis nastavnika MORAJU biti na dnu stranice
-- Ako treba: dodaj dodatni red u tabelu bodovanja ili povećaj \\vspace prije nje
-- Koristi \\raggedbottom i podešavaj \\vspace dok stranica ne bude puna
+=== VELIKI RAZMACI IZMEĐU PITANJA (KLJUČNO ZA PUNJENJE) ===
+- Koristi ZNATNO VEĆE razmake između svih pitanja:
+  - IZMEĐU ZADATAKA: \\vspace{0.8em} do \\vspace{1.2em}
+  - UNUTAR ZADATAKA (itemsep): 0.6em do 0.8em
+  - NAKON NASLOVA ZADATKA: \\vspace{0.5em}
+- Za esejska pitanja (zadaci 7, 8, 9, 10):
+  - \\vspace{2.5cm} do \\vspace{3cm} za svako podpitanje
+  - Ako je potrebno: \\vspace{3.5cm} da se popuni stranica
+- Razmaci moraju biti DOVOLJNO VELIKI da se cijela stranica popuni ravnomjerno
 
-=== STRUKTURA ===
-- Stranica 1: zadaci 1-6 u multicols{2}, sadržaj do dna stranice
+=== STRUKTURA ZADATAKA ===
+- Stranica 1: zadaci 1-6 u multicols{2}, svaki zadatak ima dovoljno razmaka
 - \\newpage 
 - Stranica 2: zadaci 7-10 u multicols{2}, potom tabela bodovanja na dnu
 - NEMA bonus zadatka
@@ -826,13 +816,13 @@ GENERIŠI TEST ZA:
 - Težina: ${tezina}
 ${napomene ? `- Napomene: ${napomene}` : ''}
 
-NAJVAŽNIJE — PUNJENJE STRANICA:
-- Stranica 1 MORA biti POTPUNO popunjena do dna (do \\hrule)
-- Stranica 2 MORA biti POTPUNO popunjena — zadaci + tabela + potpis na samom dnu
-- Koristi VEĆE razmake (\\vspace) da popuniš stranice:
-  - Zadaci 7 i 8: \\vspace{2cm} ili \\vspace{2.5cm} za svako pitanje
-  - Zadaci 9 i 10: \\vspace{1.8cm} do \\vspace{2cm}
-  - Prilagodi dok stranica ne bude puna do kraja
+NAJVAŽNIJE — VELIKI RAZMACI ZA PUNJENJE STRANICA:
+- Koristi ZNATNO VEĆE razmake između pitanja nego u primjeru:
+  - itemsep: 0.6em do 0.8em (umjesto 0.3em)
+  - \\vspace između zadataka: 0.8em do 1.2em
+  - Za esejska pitanja: \\vspace{2.5cm} do \\vspace{3.5cm}
+- Stranica 1: popuni do dna (do \\hrule)
+- Stranica 2: zadaci 7-10 sa velikim razmacima, potom tabela na dnu
 - NEMA praznog prostora na dnu!
 - Vrati kompletan LaTeX dokument`;
 
@@ -1003,3 +993,4 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
+  

@@ -259,7 +259,7 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
   <header>
     <div class="header-eyebrow">⸻ Generator Testova ⸻</div>
     <h1>Generator<br><span>Testova</span></h1>
-    <p class="header-sub">Unesite podatke — AI generiše test prilagođen temi i razredu</p>
+    <p class="header-sub">Unesite podatke — sistem generiše test prilagođen temi i razredu</p>
   </header>
 
   <div class="card">
@@ -327,11 +327,11 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
       <div class="field-group full" style="margin-bottom:30px">
         <div class="field">
           <label>Posebne napomene / naglasci</label>
-          <textarea id="napomene" placeholder="npr. Fokus na mjerenje struje i otpora. Uključi bonus zadatak..."></textarea>
+          <textarea id="napomene" placeholder="npr. Fokus na mjerenje struje i otpora..."></textarea>
         </div>
       </div>
 
-      <button class="btn-generate" id="generateBtn" onclick="generatePriprema()">
+      <button class="btn-generate" id="generateBtn" onclick="generateTest()">
         <span class="btn-text" id="btnText">✦ Generiši i Kompajliraj Test</span>
         <div class="spinner" id="btnSpinner"></div>
       </button>
@@ -348,18 +348,17 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
     <div class="pdf-header">
       <div class="pdf-title">Test — PDF</div>
       <div class="pdf-actions">
-        <a class="btn-dl btn-dl-outline" id="downloadTex" href="#" download="priprema.tex" style="display:none">↓ Skini .tex</a>
         <a class="btn-dl btn-dl-outline" id="openPdfBtn" href="#" target="_blank" style="display:none">↗ Otvori PDF</a>
-        <a class="btn-dl btn-dl-green" id="downloadPdfBtn" href="#" download="priprema.pdf">⬇ Skini PDF</a>
+        <a class="btn-dl btn-dl-green" id="downloadPdfBtn" href="#" download="test.pdf">⬇ Skini PDF</a>
       </div>
     </div>
     <!-- Fallback kad CORS blokira kompajler -->
     <div class="fallback-box" id="fallbackBox">
-      <h3>📄 LaTeX priprema je generisana!</h3>
+      <h3>📄 Test je generisan!</h3>
       <p>Online kompajler nije dostupan iz browsera (CORS ograničenje).<br>
       Skini .tex fajl i kompajliraj u Overleaf — besplatno, bez instalacije.</p>
       <ul class="fallback-steps">
-        <li><span>1</span> Klikni "Skini .tex" dugme gore</li>
+        <li><span>1</span> Sačuvaj LaTeX kod ispod kao .tex fajl</li>
         <li><span>2</span> Otvori overleaf.com i napravi novi projekt</li>
         <li><span>3</span> Upload-aj .tex fajl</li>
         <li><span>4</span> Klikni Recompile → Download PDF</li>
@@ -372,7 +371,7 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
         <div class="pdf-dot" style="background:#ff5f57"></div>
         <div class="pdf-dot" style="background:#febc2e"></div>
         <div class="pdf-dot" style="background:#28c840"></div>
-        <span class="pdf-filename" id="pdfFilename">priprema_nastavni_cas.pdf</span>
+        <span class="pdf-filename" id="pdfFilename">test.pdf</span>
       </div>
       <iframe id="pdfFrame" title="PDF Preview"></iframe>
     </div>
@@ -381,11 +380,7 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
 
 <script>
 // ===== KONFIGURACIJA =====
-// Zamijeni ovaj URL sa tvojim Cloudflare Worker URL-om nakon deploya
-// Format: https://ime-workera.tvoje-ime.workers.dev
-const WORKER_URL = 'https://raspy-frost-0d1a.adnansahanic40.workers.dev';  // ← UPIŠI OVDJE SVOJ WORKER URL
-
-// Ako je WORKER_URL prazan, koristi relativni /api/mistral (za lokalni server)
+const WORKER_URL = '';
 const API_BASE = WORKER_URL || '';
 
 // ===== PARTICLES =====
@@ -411,7 +406,7 @@ const API_BASE = WORKER_URL || '';
 const FACTS = [
   '📝 Dobar test mjeri znanje, ne sposobnost pogađanja.',
   '🎯 Jasno definisani bodovi po pitanju pomažu učenicima da rasporede vrijeme.',
-  '📊 Kombinacija tipova pitanja (višestruki izbor, esej, dopuna) daje bolji uvid u znanje.',
+  '📊 Kombinacija tipova pitanja daje bolji uvid u znanje.',
   '⏱️ Preporučeno: 1 bod = 1 minut rješavanja testa.',
   '🔬 Pitanja trebaju pokriti sve nivoe Bloomove taksonomije.',
   '📚 Test od 50 bodova idealno stane na 2 lista A4 papira.',
@@ -433,8 +428,8 @@ setInterval(rotateFact,4000);
 // ===== LOADING STEPS =====
 const STEPS = [
   [5,'Priprema podataka...'],
-  [15,'Slanje upita Mistral AI-ju...'],
-  [30,'AI generiše nastavnu pripremu...'],
+  [15,'Slanje upita...'],
+  [30,'Generisanje testa...'],
   [55,'Priprema LaTeX dokumenta...'],
   [70,'Slanje na kompajler...'],
   [85,'Kompajliranje PDF-a...'],
@@ -771,7 +766,7 @@ a) \\linija\\\\ b) \\linija\\\\ c) \\linija
 // ===== GENERATE + AUTO COMPILE =====
 let generatedLatex = '';
 
-async function generatePriprema() {
+async function generateTest() {
   const _akField = document.getElementById('apiKey'); const apiKey = _akField ? _akField.value.trim() : '';
   const predmet = document.getElementById('predmet').value.trim();
   const tema = document.getElementById('tema').value.trim();
@@ -782,9 +777,8 @@ async function generatePriprema() {
   const tezina = document.getElementById('tezina').value;
   const napomene = document.getElementById('napomene').value.trim();
 
-  // apiKey nije obavezan ako je postavljen u .env
   if (!predmet) return showStatus('error', 'Unesite naziv predmeta!');
-  if (!tema) return showStatus('error', 'Unesite nastavnu jedinicu (temu)!');
+  if (!tema) return showStatus('error', 'Unesite temu testa!');
   if (!razred) return showStatus('error', 'Unesite razred!');
 
   setLoading(true);
@@ -795,35 +789,37 @@ async function generatePriprema() {
 
 APSOLUTNA PRAVILA — NIJEDNO SE NE SMIJE PREKRŠITI:
 
-=== STRANICE ===
+=== STRANICE I PUNJENJE ===
 - Test MORA biti TAČNO 2 stranice A4 — bez izuzetka
+- SADRŽAJ MORA BITI DO KRAJA POPUNJEN — bez praznina na dnu stranica
+- Koristi dinamičko podešavanje razmaka (vspace) da se sadržaj rastegne ravnomjerno
 - Stranica 1: zadaci 1-6 unutar \\begin{multicols}{2}...\\end{multicols}
 - \\newpage između stranica — JEDINI newpage u dokumentu
 - Stranica 2: zadaci 7-10 + tabela bodovanja unutar multicols{2}
 - NEMA bonus zadatka — uklonjen je iz strukture
 - ZABRANJENO: dodavati \\newpage osim između str.1 i str.2
 
-=== KOMPAKTNOST (KRITIČNO) ===
+=== KOMPAKTNOST I RASTEZANJE ===
 - Font: \\small ili \\footnotesize za tekst pitanja — OBAVEZNO
-- vspace za odgovore: MAKSIMALNO 1.5cm — nikad više
-- itemsep: 0.3em — nikad više
-- parskip: 0.1em — nikad više  
+- Ako ima praznine na dnu: povećaj vspace za esejska pitanja (do 2cm max)
+- Ako nema dovoljno mjesta: smanji vspace na minimum 1cm
 - Pitanja pisati KRATKO i SAŽETO — max 1 red po pitanju
 - Ako pitanje ne stane u 1 red — skrati ga na pola
 - \\setlength{\\parskip}{0.1em} i \\setlength{\\itemsep}{0pt} na početku multicols
+- Na kraju stranice 2: tabela bodovanja + potpis moraju biti na dnu stranice
 
 === STRUKTURA ZADATAKA ===
 - Zad. 1: Višestruki izbor — 5 pitanja, odgovori a)b)c) ili a)b)c)d) u ISTOM redu
 - Zad. 2: Tačno/Netačno — 5 kratkih tvrdnji, T/N na kraju reda
 - Zad. 3: Dopuni rečenice — 5 kratkih rečenica sa \\linija
 - Zad. 4: Poveži pojmove — tabela 5×2, kompaktna
-- Zad. 5: Kratki odgovori — 3 pitanja, vspace 1.3cm svaki
+- Zad. 5: Kratki odgovori — 3 pitanja, vspace 1.3cm svaki (povećaj ako treba popuniti stranicu)
 - Zad. 6: Nabrajanje — 2 podzadatka, a)b)c) linija u istom redu
-- Zad. 7: 3 esejska pitanja, vspace 1.5cm svaki
-- Zad. 8: 3 esejska pitanja, vspace 1.5cm svaki
+- Zad. 7: 3 esejska pitanja, vspace 1.5cm svaki (povećaj na 2cm ako ima praznine)
+- Zad. 8: 3 esejska pitanja, vspace 1.5cm svaki (povećaj na 2cm ako ima praznine)
 - Zad. 9: 2 podzadatka (sonde + sigurnost), vspace 1.3cm
 - Zad. 10: 4 kratka pitanja, vspace 1.3cm svaki
-- Tabela bodovanja: kompaktna, horizontalna, na dnu str.2
+- Tabela bodovanja: kompaktna, horizontalna, na dnu str.2, ne visoko
 - NEMA zadatka 11 — bonus je uklonjen
 
 === SADRŽAJ ===
@@ -852,17 +848,18 @@ GENERIŠI TEST ZA:
 - Težina: ${tezina}
 ${napomene ? `- Napomene: ${napomene}` : ''}
 
-STRIKTNO UPOZORENJE — KRITIČNO:
+KRITIČNO — POPUNJENOST STRANICA:
 - Test MORA stati na TAČNO 2 stranice A4
+- SADRŽAJ MORA BITI DO KRAJA POPUNJEN — bez praznina na dnu
+- Koristi \\vspace da ravnomjerno rasporediš sadržaj
+- Na dnu stranice 2: tabela bodovanja + potpis nastavnika MORAJU biti na samom dnu
+- Ako imaš praznine: povećaj vspace za esejska pitanja (zadaci 7, 8) na 2cm
 - Koristi \\small za sav tekst pitanja
-- vspace MAKSIMALNO 1.5cm — manji ako treba
-- Pitanja pisati KRATKO — skrati ako je predugačko
 - NEMA bonus zadatka (zadatak 11)
-- NEMA dodatnih \\newpage osim između stranica
 - Vrati kompletan LaTeX dokument`;
 
   try {
-    setLoadingPct(20, 'Slanje upita Mistral AI-ju...');
+    setLoadingPct(20, 'Priprema podataka...');
     const response = await fetch(API_BASE + '/api/mistral', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -883,7 +880,7 @@ STRIKTNO UPOZORENJE — KRITIČNO:
       throw new Error(err.error?.message || `HTTP ${response.status}`);
     }
 
-    setLoadingPct(55, 'AI završio — priprema LaTeX dokumenta...');
+    setLoadingPct(55, 'Generisanje završeno — priprema LaTeX dokumenta...');
     const data = await response.json();
     let latex = data.choices[0].message.content.trim();
 
@@ -892,20 +889,13 @@ STRIKTNO UPOZORENJE — KRITIČNO:
                  .replace(/^```[^\n]*/im,'').replace(/```[\s\S]*$/gim,'').trim();
     const ds = latex.indexOf('\\documentclass');
     if (ds > 0) latex = latex.substring(ds);
-    if (!latex.includes('\\documentclass')) throw new Error('AI nije vratio validan LaTeX. Pokušaj ponovo.');
+    if (!latex.includes('\\documentclass')) throw new Error('Sistem nije vratio validan LaTeX. Pokušaj ponovo.');
     if (!latex.includes('\\end{document}')) latex += '\n\\end{document}';
 
     generatedLatex = latex;
 
-    // Setup download .tex link
-    const texBlob = new Blob([latex], {type:'text/plain;charset=utf-8'});
-    const texUrl = URL.createObjectURL(texBlob);
-    const dlTex = document.getElementById('downloadTex');
-    dlTex.href = texUrl;
-    dlTex.download = `priprema_${predmet}_${tema}.tex`.replace(/\s+/g,'_').toLowerCase();
-
     // Now auto-compile
-    setLoadingPct(65, 'Kompajliranje PDF-a na TeXLive.net...');
+    setLoadingPct(65, 'Kompajliranje PDF-a...');
     await compileAndShow(latex, predmet, tema);
 
   } catch(err) {
@@ -962,7 +952,7 @@ async function compileAndShow(latex, predmet, tema) {
     hideLoading();
     setLoading(false);
     showFallbackUI(filenameBase, predmet, tema);
-    showStatus('success', '✓ LaTeX generisan! Klikni Otvori u Overleaf za PDF.');
+    showStatus('success', '✓ Test generisan! Klikni Otvori u Overleaf za PDF.');
   }, 600);
 }
 
@@ -984,7 +974,6 @@ function showPDF(blob, filenameBase, predmet, tema) {
   openPdf.href = pdfUrl;
   openPdf.style.display = 'inline-flex';
   
-  document.getElementById('downloadTex').style.display = 'inline-flex';
   document.getElementById('fallbackBox').style.display = 'none';
   document.getElementById('pdfWrap').style.display = 'block';
   
@@ -995,9 +984,6 @@ function showPDF(blob, filenameBase, predmet, tema) {
 }
 
 function showFallbackUI(filenameBase, predmet, tema) {
-  const dlTex = document.getElementById('downloadTex');
-  dlTex.style.display = 'inline-flex';
-  
   document.getElementById('pdfWrap').style.display = 'none';
   document.getElementById('fallbackBox').style.display = 'block';
   document.getElementById('pdfSection').classList.add('visible');
@@ -1013,11 +999,9 @@ function showFallbackUI(filenameBase, predmet, tema) {
 function openOverleaf() {
   if (!generatedLatex) return;
   
-  // Create a proper Overleaf URL with the LaTeX content
   const encoded = encodeURIComponent(generatedLatex);
   const filename = window._overleafData?.filename || 'test.tex';
   
-  // Overleaf submit URL format
   const overleafUrl = `https://www.overleaf.com/docs?snip_uri=data:text/plain;charset=utf-8,${encoded}&filename=${filename}`;
   
   window.open(overleafUrl, '_blank');
@@ -1025,12 +1009,10 @@ function openOverleaf() {
 
 // ===== INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', function() {
-  // Check if running with worker
   if (WORKER_URL) {
     document.getElementById('serverBanner').style.display = 'block';
   }
   
-  // Check API key status from server
   fetch('/api/key-status')
     .then(r => r.json())
     .then(data => {
@@ -1047,7 +1029,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     })
     .catch(() => {
-      // Local dev without server - show API key field
       document.getElementById('apiKeyField').style.display = 'flex';
     });
 });

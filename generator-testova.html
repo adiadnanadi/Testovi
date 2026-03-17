@@ -786,7 +786,6 @@ async function generatePriprema() {
   if (!predmet) return showStatus('error', 'Unesite naziv predmeta!');
   if (!tema) return showStatus('error', 'Unesite nastavnu jedinicu (temu)!');
   if (!razred) return showStatus('error', 'Unesite razred!');
-  if (!tema) return showStatus('error', 'Unesite temu testa!');
 
   setLoading(true);
   showLoading();
@@ -798,25 +797,25 @@ APSOLUTNA PRAVILA — NIJEDNO SE NE SMIJE PREKRŠITI:
 
 === STRANICE ===
 - Test MORA biti TAČNO 2 stranice A4 — bez izuzetka
-- Stranica 1: zadaci 1-6 unutar \begin{multicols}{2}...\end{multicols}
-- \newpage između stranica — JEDINI newpage u dokumentu
+- Stranica 1: zadaci 1-6 unutar \\begin{multicols}{2}...\\end{multicols}
+- \\newpage između stranica — JEDINI newpage u dokumentu
 - Stranica 2: zadaci 7-10 + tabela bodovanja unutar multicols{2}
 - NEMA bonus zadatka — uklonjen je iz strukture
-- ZABRANJENO: dodavati \newpage osim između str.1 i str.2
+- ZABRANJENO: dodavati \\newpage osim između str.1 i str.2
 
 === KOMPAKTNOST (KRITIČNO) ===
-- Font: \small ili \footnotesize za tekst pitanja — OBAVEZNO
+- Font: \\small ili \\footnotesize za tekst pitanja — OBAVEZNO
 - vspace za odgovore: MAKSIMALNO 1.5cm — nikad više
 - itemsep: 0.3em — nikad više
 - parskip: 0.1em — nikad više  
 - Pitanja pisati KRATKO i SAŽETO — max 1 red po pitanju
 - Ako pitanje ne stane u 1 red — skrati ga na pola
-- \setlength{\parskip}{0.1em} i \setlength{\itemsep}{0pt} na početku multicols
+- \\setlength{\\parskip}{0.1em} i \\setlength{\\itemsep}{0pt} na početku multicols
 
 === STRUKTURA ZADATAKA ===
 - Zad. 1: Višestruki izbor — 5 pitanja, odgovori a)b)c) ili a)b)c)d) u ISTOM redu
 - Zad. 2: Tačno/Netačno — 5 kratkih tvrdnji, T/N na kraju reda
-- Zad. 3: Dopuni rečenice — 5 kratkih rečenica sa \linija
+- Zad. 3: Dopuni rečenice — 5 kratkih rečenica sa \\linija
 - Zad. 4: Poveži pojmove — tabela 5×2, kompaktna
 - Zad. 5: Kratki odgovori — 3 pitanja, vspace 1.3cm svaki
 - Zad. 6: Nabrajanje — 2 podzadatka, a)b)c) linija u istom redu
@@ -835,7 +834,7 @@ APSOLUTNA PRAVILA — NIJEDNO SE NE SMIJE PREKRŠITI:
 - Jezik: bosanski/hrvatski ijekavica
 
 === ODGOVOR ===
-- SAMO čisti LaTeX od \documentclass do \end{document}
+- SAMO čisti LaTeX od \\documentclass do \\end{document}
 - Bez markdown, bez objašnjenja`;
 
   const userPrompt = `Referentni LaTeX dokument (template testa):
@@ -855,11 +854,11 @@ ${napomene ? `- Napomene: ${napomene}` : ''}
 
 STRIKTNO UPOZORENJE — KRITIČNO:
 - Test MORA stati na TAČNO 2 stranice A4
-- Koristi \small za sav tekst pitanja
+- Koristi \\small za sav tekst pitanja
 - vspace MAKSIMALNO 1.5cm — manji ako treba
 - Pitanja pisati KRATKO — skrati ako je predugačko
 - NEMA bonus zadatka (zadatak 11)
-- NEMA dodatnih \newpage osim između stranica
+- NEMA dodatnih \\newpage osim između stranica
 - Vrati kompletan LaTeX dokument`;
 
   try {
@@ -966,3 +965,92 @@ async function compileAndShow(latex, predmet, tema) {
     showStatus('success', '✓ LaTeX generisan! Klikni Otvori u Overleaf za PDF.');
   }, 600);
 }
+
+// ===== PDF DISPLAY FUNCTIONS =====
+function showPDF(blob, filenameBase, predmet, tema) {
+  const pdfUrl = URL.createObjectURL(blob);
+  const filename = `test_${filenameBase}.pdf`;
+  
+  document.getElementById('pdfFilename').textContent = filename;
+  
+  const iframe = document.getElementById('pdfFrame');
+  iframe.src = pdfUrl;
+  
+  const dlPdf = document.getElementById('downloadPdfBtn');
+  dlPdf.href = pdfUrl;
+  dlPdf.download = filename;
+  
+  const openPdf = document.getElementById('openPdfBtn');
+  openPdf.href = pdfUrl;
+  openPdf.style.display = 'inline-flex';
+  
+  document.getElementById('downloadTex').style.display = 'inline-flex';
+  document.getElementById('fallbackBox').style.display = 'none';
+  document.getElementById('pdfWrap').style.display = 'block';
+  
+  hideLoading();
+  setLoading(false);
+  document.getElementById('pdfSection').classList.add('visible');
+  showStatus('success', '✓ Test uspješno generisan i kompajliran!');
+}
+
+function showFallbackUI(filenameBase, predmet, tema) {
+  const dlTex = document.getElementById('downloadTex');
+  dlTex.style.display = 'inline-flex';
+  
+  document.getElementById('pdfWrap').style.display = 'none';
+  document.getElementById('fallbackBox').style.display = 'block';
+  document.getElementById('pdfSection').classList.add('visible');
+  
+  // Store data for Overleaf
+  window._overleafData = {
+    filename: `test_${filenameBase}.tex`,
+    predmet: predmet,
+    tema: tema
+  };
+}
+
+function openOverleaf() {
+  if (!generatedLatex) return;
+  
+  // Create a proper Overleaf URL with the LaTeX content
+  const encoded = encodeURIComponent(generatedLatex);
+  const filename = window._overleafData?.filename || 'test.tex';
+  
+  // Overleaf submit URL format
+  const overleafUrl = `https://www.overleaf.com/docs?snip_uri=data:text/plain;charset=utf-8,${encoded}&filename=${filename}`;
+  
+  window.open(overleafUrl, '_blank');
+}
+
+// ===== INITIALIZATION =====
+document.addEventListener('DOMContentLoaded', function() {
+  // Check if running with worker
+  if (WORKER_URL) {
+    document.getElementById('serverBanner').style.display = 'block';
+  }
+  
+  // Check API key status from server
+  fetch('/api/key-status')
+    .then(r => r.json())
+    .then(data => {
+      const envStatus = document.getElementById('envStatus');
+      if (data.configured) {
+        envStatus.textContent = `✓ API ključ konfigurisan (${data.preview})`;
+        envStatus.style.cssText = 'background:rgba(26,107,58,.1);color:var(--green);border:1px solid rgba(26,107,58,.2)';
+        envStatus.style.display = 'block';
+      } else {
+        envStatus.textContent = '⚠ API ključ nije postavljen u .env';
+        envStatus.style.cssText = 'background:rgba(176,48,48,.1);color:var(--red);border:1px solid rgba(176,48,48,.2)';
+        envStatus.style.display = 'block';
+        document.getElementById('apiKeyField').style.display = 'flex';
+      }
+    })
+    .catch(() => {
+      // Local dev without server - show API key field
+      document.getElementById('apiKeyField').style.display = 'flex';
+    });
+});
+</script>
+</body>
+</html>

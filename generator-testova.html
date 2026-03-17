@@ -91,7 +91,6 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
   font-family:'DM Mono',monospace;font-size:10.5px;color:#7a5008;line-height:1.75}
 .info-banner strong{color:#6a4006}
 
-/* ===== FILE UPLOAD STYLES ===== */
 .file-upload-area{
   border:2px dashed var(--border);
   border-radius:6px;
@@ -155,7 +154,6 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
 }
 .file-remove:hover{opacity:.7}
 
-/* ===== MODE SELECTION ===== */
 .mode-selection{
   display:flex;
   gap:12px;
@@ -194,7 +192,6 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
   opacity:0.8;
 }
 
-/* ===== LEKCIJE DISTRIBUTION ===== */
 .lekcije-section{
   margin-top:20px;
   padding-top:20px;
@@ -450,7 +447,6 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
         </div>
       </div>
 
-      <!-- ===== FILE UPLOAD SECTION ===== -->
       <div class="section-label">Lekcije / Materijali (opciono)</div>
       <div class="field-group full" style="margin-bottom:16px">
         <div class="field">
@@ -465,7 +461,6 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
         </div>
       </div>
 
-      <!-- ===== MODE SELECTION (vidljivo samo ako ima fajlova) ===== -->
       <div class="mode-selection" id="modeSelection" style="display:none">
         <div class="mode-option active" id="modeStandard" onclick="setMode('standard')">
           <div class="mode-option-title">Standardni test</div>
@@ -477,7 +472,6 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
         </div>
       </div>
 
-      <!-- ===== LEKCIJE DISTRIBUTION (vidljivo samo u mode 'lekcije') ===== -->
       <div class="lekcije-section" id="lekcijeSection" style="display:none">
         <div class="section-label">Raspodjela pitanja po lekcijama</div>
         <div id="lekcijeList"></div>
@@ -544,12 +538,11 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
 const WORKER_URL = '';
 const API_BASE = WORKER_URL || '';
 
-// ===== STATE =====
 let uploadedFiles = [];
 let lekcijeData = [];
-let currentMode = 'standard'; // 'standard' ili 'lekcije'
+let currentMode = 'standard';
+let generatedLatex = '';
 
-// ===== FILE UPLOAD =====
 function handleFiles(files) {
   const validExts = ['txt', 'pdf', 'docx', 'doc', 'md'];
   
@@ -557,7 +550,7 @@ function handleFiles(files) {
     const ext = file.name.split('.').pop().toLowerCase();
     
     if (!validExts.includes(ext)) {
-      showStatus('error', `Fajl "${file.name}" nije podržan format.`);
+      showStatus('error', 'Fajl "' + file.name + '" nije podržan format.');
       continue;
     }
     
@@ -566,10 +559,8 @@ function handleFiles(files) {
   
   updateFilesList();
   
-  // Pokaži mode selection ako ima fajlova
   if (uploadedFiles.length > 0) {
     document.getElementById('modeSelection').style.display = 'flex';
-    // Default na standardni mode
     setMode('standard');
   }
 }
@@ -578,16 +569,10 @@ function updateFilesList() {
   const list = document.getElementById('filesList');
   list.innerHTML = '';
   
-  uploadedFiles.forEach((file, index) => {
+  uploadedFiles.forEach(function(file, index) {
     const item = document.createElement('div');
     item.className = 'file-item';
-    item.innerHTML = `
-      <div style="display:flex;flex-direction:column;gap:2px">
-        <span class="file-name">${file.name}</span>
-        <span class="file-size">${(file.size / 1024).toFixed(1)} KB</span>
-      </div>
-      <button class="file-remove" onclick="removeFile(${index})" title="Ukloni">✕</button>
-    `;
+    item.innerHTML = '<div style="display:flex;flex-direction:column;gap:2px"><span class="file-name">' + file.name + '</span><span class="file-size">' + (file.size / 1024).toFixed(1) + ' KB</span></div><button class="file-remove" onclick="removeFile(' + index + ')" title="Ukloni">✕</button>';
     list.appendChild(item);
   });
 }
@@ -604,30 +589,26 @@ function removeFile(index) {
   }
 }
 
-// Drag & drop
 const uploadArea = document.getElementById('fileUploadArea');
-uploadArea.addEventListener('dragover', (e) => {
+uploadArea.addEventListener('dragover', function(e) {
   e.preventDefault();
   uploadArea.classList.add('dragover');
 });
-uploadArea.addEventListener('dragleave', () => {
+uploadArea.addEventListener('dragleave', function() {
   uploadArea.classList.remove('dragover');
 });
-uploadArea.addEventListener('drop', (e) => {
+uploadArea.addEventListener('drop', function(e) {
   e.preventDefault();
   uploadArea.classList.remove('dragover');
   handleFiles(e.dataTransfer.files);
 });
 
-// ===== MODE SELECTION =====
 function setMode(mode) {
   currentMode = mode;
   
-  // Update UI
   document.getElementById('modeStandard').classList.toggle('active', mode === 'standard');
   document.getElementById('modeLekcije').classList.toggle('active', mode === 'lekcije');
   
-  // Pokaži/sakrij raspodjelu lekcija
   if (mode === 'lekcije') {
     prikaziLekcijeRaspodjelu();
   } else {
@@ -635,41 +616,35 @@ function setMode(mode) {
   }
 }
 
-// ===== LEKCIJE DISTRIBUTION =====
 function prikaziLekcijeRaspodjelu() {
   const section = document.getElementById('lekcijeSection');
   const list = document.getElementById('lekcijeList');
   const ukupno = parseInt(document.getElementById('ukupnoBodova').value) || 50;
   
-  // Kreiraj podatke o lekcijama ako ne postoje
   if (lekcijeData.length !== uploadedFiles.length) {
-    lekcijeData = uploadedFiles.map((file, index) => ({
-      naziv: file.name.replace(/\.[^/.]+$/, ""),
-      fajl: file,
-      bodovi: 0
-    }));
+    lekcijeData = uploadedFiles.map(function(file, index) {
+      return {
+        naziv: file.name.replace(/\.[^/.]+$/, ""),
+        fajl: file,
+        bodovi: 0
+      };
+    });
   }
   
   section.style.display = 'block';
   list.innerHTML = '';
   
-  // Ravnomjerna raspodjela
   const bodoviPoLekciji = Math.floor(ukupno / lekcijeData.length);
   const ostatak = ukupno % lekcijeData.length;
   
-  lekcijeData.forEach((lekcija, index) => {
+  lekcijeData.forEach(function(lekcija, index) {
     const dodatni = index < ostatak ? 1 : 0;
     const predlozeni = bodoviPoLekciji + dodatni;
     if (lekcija.bodovi === 0) lekcija.bodovi = predlozeni;
     
     const row = document.createElement('div');
     row.className = 'lekcija-row';
-    row.innerHTML = `
-      <div class="lekcija-naziv">${lekcija.naziv}</div>
-      <input type="number" class="lekcija-input" id="lekcija_${index}" value="${lekcija.bodovi}" min="0" max="${ukupno}" 
-        onchange="updateLekcijaBodove(${index}, this.value)">
-      <div class="lekcija-total">bodova</div>
-    `;
+    row.innerHTML = '<div class="lekcija-naziv">' + lekcija.naziv + '</div><input type="number" class="lekcija-input" id="lekcija_' + index + '" value="' + lekcija.bodovi + '" min="0" max="' + ukupno + '" onchange="updateLekcijaBodove(' + index + ', this.value)"><div class="lekcija-total">bodova</div>';
     list.appendChild(row);
   });
   
@@ -682,22 +657,20 @@ function updateLekcijaBodove(index, value) {
 }
 
 function updateUkupnoBodovaLekcije() {
-  const ukupno = lekcijeData.reduce((sum, l) => sum + (l.bodovi || 0), 0);
+  const ukupno = lekcijeData.reduce(function(sum, l) { return sum + (l.bodovi || 0); }, 0);
   const target = parseInt(document.getElementById('ukupnoBodova').value) || 50;
   const display = document.getElementById('ukupnoBodovaLekcije');
   
-  display.textContent = `${ukupno} / ${target}`;
+  display.textContent = ukupno + ' / ' + target;
   display.style.color = ukupno !== target ? 'var(--red)' : 'var(--green)';
 }
 
-// Update kada se promijeni ukupno bodova
-document.getElementById('ukupnoBodova').addEventListener('change', () => {
+document.getElementById('ukupnoBodova').addEventListener('change', function() {
   if (currentMode === 'lekcije' && lekcijeData.length > 0) {
     prikaziLekcijeRaspodjelu();
   }
 });
 
-// ===== PARTICLES =====
 (function(){
   const container = document.getElementById('particles');
   const colors = ['rgba(200,146,26,.4)','rgba(0,87,168,.3)','rgba(241,196,78,.3)','rgba(245,240,232,.15)'];
@@ -705,18 +678,11 @@ document.getElementById('ukupnoBodova').addEventListener('change', () => {
     const p = document.createElement('div');
     p.className = 'particle';
     const size = Math.random()*6+3;
-    p.style.cssText = `
-      width:${size}px;height:${size}px;
-      left:${Math.random()*100}%;
-      background:${colors[Math.floor(Math.random()*colors.length)]};
-      animation-duration:${Math.random()*15+8}s;
-      animation-delay:${Math.random()*10)s;
-    `;
+    p.style.cssText = 'width:' + size + 'px;height:' + size + 'px;left:' + Math.random()*100 + '%;background:' + colors[Math.floor(Math.random()*colors.length)] + ';animation-duration:' + (Math.random()*15+8) + 's;animation-delay:' + (Math.random()*10) + 's;';
     container.appendChild(p);
   }
 })();
 
-// ===== LOADING =====
 const FACTS = [
   '📝 Dobar test mjeri znanje, ne sposobnost pogađanja.',
   '🎯 Jasno definisani bodovi po pitanju pomažu učenicima da rasporede vrijeme.',
@@ -731,7 +697,7 @@ let factIdx = 0;
 function rotateFact(){
   const el = document.getElementById('factCard');
   el.style.opacity='0';
-  setTimeout(()=>{
+  setTimeout(function(){
     factIdx=(factIdx+1)%FACTS.length;
     el.textContent=FACTS[factIdx];
     el.style.opacity='1';
@@ -753,11 +719,13 @@ function startLoadingSteps(){
   let i=0;
   function next(){
     if(i>=STEPS.length)return;
-    const [pct,msg]=STEPS[i];
+    const pct=STEPS[i][0];
+    const msg=STEPS[i][1];
     document.getElementById('loadingBar').style.width=pct+'%';
     document.getElementById('loadingStep').textContent=msg;
     i++;
-    stepTimer=setTimeout(next, i===1?500 : i===2?1000 : i===3?8000 : i===4?3000 : i===5?5000 : 3000);
+    const delay = i===1 ? 500 : i===2 ? 1000 : i===3 ? 8000 : i===4 ? 3000 : i===5 ? 5000 : 3000;
+    stepTimer=setTimeout(next, delay);
   }
   next();
 }
@@ -774,7 +742,9 @@ function hideLoading(){
   clearTimeout(stepTimer);
   document.getElementById('loadingBar').style.width='100%';
   document.getElementById('loadingStep').textContent='Gotovo!';
-  setTimeout(()=>document.getElementById('loadingOverlay').classList.remove('active'),600);
+  setTimeout(function(){
+    document.getElementById('loadingOverlay').classList.remove('active');
+  },600);
 }
 
 function showStatus(type,msg){
@@ -789,12 +759,294 @@ function setLoading(on){
   document.getElementById('btnText').textContent=on?'Generisanje...':'✦ Generiši i Kompajliraj Test';
 }
 
-// ===== GENERATE TEST =====
-let generatedLatex = '';
+const ORIGINAL_DOC = `\\documentclass[a4paper,10pt]{article}
+\\usepackage[utf8]{inputenc}
+\\usepackage[T1]{fontenc}
+\\usepackage[croatian]{babel}
+\\usepackage[margin=0.9cm, top=1cm, bottom=1cm]{geometry}
+\\usepackage{enumitem}
+\\usepackage{multicol}
+\\usepackage{array}
+\\usepackage{fancyhdr}
+\\usepackage{xcolor}
+
+\\raggedbottom
+\\pagestyle{fancy}
+\\fancyhf{}
+\\fancyhead[C]{\\small\\textbf{TEST IZ ELEKTRIČNIH MJERENJA -- Digitalni multimetar}}
+\\fancyfoot[C]{\\small\\thepage}
+\\renewcommand{\\headrulewidth}{0.4pt}
+
+\\setlength{\\parindent}{0pt}
+\\setlength{\\parskip}{0.2em}
+\\setlength{\\columnsep}{0.8cm}
+\\setlength{\\itemsep}{0pt}
+
+\\newcommand{\\linija}{\\underline{\\hspace{3cm}}}
+\\newcommand{\\kratka}{\\underline{\\hspace{1cm}}}
+
+\\begin{document}
+
+% ==================== STRANA 1 ====================
+{\\small\\textbf{Ime i prezime:} \\underline{\\hspace{4.5cm}} \\textbf{Razred:} \\underline{\\hspace{1.5cm}} \\textbf{Datum:} \\underline{\\hspace{2cm}} \\textbf{Bodovi:} \\underline{\\hspace{1cm}}/50}
+\\vspace{0.2em}
+\\hrule
+\\vspace{0.3em}
+
+\\begin{multicols}{2}
+\\setlength{\\parskip}{0.1em}
+
+% ----- ZADATAK 1: VIŠESTRUKI IZBOR (5b) -----
+{\\small\\textbf{1. VIŠESTRUKI IZBOR} \\hfill \\textit{(5 bodova)}}
+\\vspace{0.2em}
+
+\\begin{enumerate}[label=\\textbf{\\small 1.\\arabic*.}, leftmargin=*, itemsep=0.3em, topsep=0.2em]
+{\\small
+\\item Mjerna jedinica za električni napon je:
+a) Amper \\quad b) Om \\quad c) Volt \\quad d) Vat
+
+\\item Oznaka \\textbf{V\\textasciitilde} na multimetru označava:
+a) DC napon \\quad b) AC napon \\quad c) Otpor \\quad d) Frekvenciju
+
+\\item Multimetar za mjerenje napona se spaja:
+a) Serijski \\quad b) Paralelno \\quad c) Umjesto potrošača
+
+\\item \\textbf{OL} na displeju znači:
+a) Niska baterija \\quad b) Prekoračenje opsega \\quad c) Greška sonde
+
+\\item Mjerna jedinica za otpor je:
+a) Volt \\quad b) Amper \\quad c) Om \\quad d) Herc
+}
+\\end{enumerate}
+
+\\vspace{0.4em}
+
+% ----- ZADATAK 2: TAČNO/NETAČNO (5b) -----
+{\\small\\textbf{2. TAČNO / NETAČNO} \\hfill \\textit{(5 bodova)}}
+\\vspace{0.2em}
+
+\\begin{enumerate}[label=\\textbf{\\small 2.\\arabic*.}, leftmargin=*, itemsep=0.3em, topsep=0.2em]
+{\\small
+\\item Otpor se može mjeriti u uključenom krugu. \\hfill T / N
+\\item Crna sonda ide na COM priključak. \\hfill T / N
+\\item Za mjerenje struje treba prekinuti krug. \\hfill T / N
+\\item DC napon periodično mijenja smjer. \\hfill T / N
+\\item Digitalni multimetar ima bolju čitljivost od analognog. \\hfill T / N
+}
+\\end{enumerate}
+
+\\vspace{0.4em}
+
+% ----- ZADATAK 3: DOPUNI (5b) -----
+{\\small\\textbf{3. DOPUNI REČENICE} \\hfill \\textit{(5 bodova)}}
+\\vspace{0.2em}
+
+\\begin{enumerate}[label=\\textbf{\\small 3.\\arabic*.}, leftmargin=*, itemsep=0.4em, topsep=0.2em]
+{\\small
+\\item Električni napon je razlika \\linija između dvije tačke.
+\\item Električna struja mjeri se u \\linija.
+\\item Električni otpor se mjeri u \\linija.
+\\item Crvena sonda spaja se na priključak \\linija.
+\\item Rotacijski prekidač služi za odabir \\linija.
+}
+\\end{enumerate}
+
+\\columnbreak
+
+% ----- ZADATAK 4: POVEŽI (5b) -----
+{\\small\\textbf{4. POVEŽI POJMOVE} \\hfill \\textit{(5 bodova)}}
+\\vspace{0.2em}
+
+{\\small
+\\begin{tabular}{|c|p{2.3cm}|c|p{2.8cm}|}
+\\hline
+\\textbf{} & \\textbf{Pojam} & \\textbf{} & \\textbf{Objašnjenje}\\\\
+\\hline
+1 & V= (DC) & A & Nuliranje vrijednosti\\\\
+\\hline
+2 & 4-žični metod & B & Istosmjerni napon\\\\
+\\hline
+3 & REL funkcija & C & Blizina izmj. vrijed.\\\\
+\\hline
+4 & Preciznost & D & Kelvinovo mjerenje\\\\
+\\hline
+5 & Tačnost & E & Blizina stvarnoj vrijed.\\\\
+\\hline
+\\end{tabular}
+
+\\textbf{Odgovori:} 1-\\kratka 2-\\kratka 3-\\kratka 4-\\kratka 5-\\kratka
+}
+
+\\vspace{0.5em}
+
+% ----- ZADATAK 5: KRATKI ODGOVORI (9b) -----
+{\\small\\textbf{5. KRATKI ODGOVORI} \\hfill \\textit{(9 bodova)}}
+\\vspace{0.2em}
+
+\\begin{enumerate}[label=\\textbf{\\small 5.\\arabic*.}, leftmargin=*, itemsep=0.3em, topsep=0.2em]
+{\\small
+\\item Šta je digitalni multimetar? \\textit{(3b)}
+
+\\vspace{1.3cm}
+
+\\item Navedi 3 el. veličine koje mjeri multimetar. \\textit{(3b)}
+
+\\vspace{1.3cm}
+
+\\item Razlika između DC i AC napona? \\textit{(3b)}
+
+\\vspace{1.3cm}
+}
+\\end{enumerate}
+
+% ----- ZADATAK 6: NABRAJANJE (6b) -----
+{\\small\\textbf{6. NABRAJANJE} \\hfill \\textit{(6 bodova)}}
+\\vspace{0.2em}
+
+\\begin{enumerate}[label=\\textbf{\\small 6.\\arabic*.}, leftmargin=*, itemsep=0.3em, topsep=0.2em]
+{\\small
+\\item Tri prednosti digitalnog multimetra: \\textit{(3b)}
+
+a) \\linija\\\\ b) \\linija\\\\ c) \\linija
+
+\\item Tri osnovna dijela multimetra: \\textit{(3b)}
+
+a) \\linija\\\\ b) \\linija\\\\ c) \\linija
+}
+\\end{enumerate}
+
+\\end{multicols}
+
+\\vspace{0.2em}
+\\hrule
+\\begin{flushright}
+{\\small\\textit{Okreni list} $\\rightarrow$}
+\\end{flushright}
+
+\\newpage
+
+% ==================== STRANA 2 ====================
+\\begin{multicols}{2}
+\\setlength{\\parskip}{0.1em}
+
+% ----- ZADATAK 7: SPAJANJE (6b) -----
+{\\small\\textbf{7. SPAJANJE MULTIMETRA} \\hfill \\textit{(6 bodova)}}
+\\vspace{0.2em}
+
+\\begin{enumerate}[label=\\textbf{\\small 7.\\arabic*.}, leftmargin=*, itemsep=0.3em, topsep=0.2em]
+{\\small
+\\item Kako se spaja za mjerenje NAPONA? \\textit{(2b)}
+
+\\vspace{1.5cm}
+
+\\item Kako se spaja za mjerenje STRUJE? \\textit{(2b)}
+
+\\vspace{1.5cm}
+
+\\item Zašto prekinuti krug pri mjerenju struje? \\textit{(2b)}
+
+\\vspace{1.5cm}
+}
+\\end{enumerate}
+
+\\vspace{0.3em}
+
+% ----- ZADATAK 8: MJERENJE OTPORA (6b) -----
+{\\small\\textbf{8. MJERENJE OTPORA} \\hfill \\textit{(6 bodova)}}
+\\vspace{0.2em}
+
+\\begin{enumerate}[label=\\textbf{\\small 8.\\arabic*.}, leftmargin=*, itemsep=0.3em, topsep=0.2em]
+{\\small
+\\item Zašto otpor NE mjeriti u uključenom krugu? \\textit{(2b)}
+
+\\vspace{1.5cm}
+
+\\item Princip mjerenja otpora multimetrom. \\textit{(2b)}
+
+\\vspace{1.5cm}
+
+\\item Šta je 4-žični (Kelvin) metod? \\textit{(2b)}
+
+\\vspace{1.5cm}
+}
+\\end{enumerate}
+
+\\columnbreak
+
+% ----- ZADATAK 9: SONDE I SIGURNOST (5b) -----
+{\\small\\textbf{9. SONDE I SIGURNOST} \\hfill \\textit{(5 bodova)}}
+\\vspace{0.2em}
+
+\\begin{enumerate}[label=\\textbf{\\small 9.\\arabic*.}, leftmargin=*, itemsep=0.3em, topsep=0.2em]
+{\\small
+\\item Gdje se spaja crna/crvena sonda? \\textit{(2b)}
+
+\\vspace{1.3cm}
+
+\\item Tri sigurnosna pravila: \\textit{(3b)}
+
+a) \\linija\\\\ b) \\linija\\\\ c) \\linija
+}
+\\end{enumerate}
+
+\\vspace{0.5em}
+
+% ----- ZADATAK 10: POJMOVI (8b) -----
+{\\small\\textbf{10. POJMOVI I FUNKCIJE} \\hfill \\textit{(8 bodova)}}
+\\vspace{0.2em}
+
+\\begin{enumerate}[label=\\textbf{\\small 10.\\arabic*.}, leftmargin=*, itemsep=0.3em, topsep=0.2em]
+{\\small
+\\item Šta je el. struja i njena mjerna jedinica? \\textit{(2b)}
+
+\\vspace{1.3cm}
+
+\\item Šta znače V= i V\\textasciitilde{} na multimetru? \\textit{(2b)}
+
+\\vspace{1.3cm}
+
+\\item Razlika između tačnosti i preciznosti? \\textit{(2b)}
+
+\\vspace{1.3cm}
+
+\\item Čemu služi REL funkcija na multimetru? \\textit{(2b)}
+
+\\vspace{1.3cm}
+}
+\\end{enumerate}
+
+\\end{multicols}
+
+\\vspace{0.3em}
+\\hrule
+\\vspace{0.3em}
+
+\\begin{center}
+{\\small\\textbf{TABELA BODOVANJA}}\\\\[0.3em]
+{\\small
+\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+\\hline
+\\textbf{Zad.} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10\\\\
+\\hline
+\\textbf{Max} & 5 & 5 & 5 & 5 & 9 & 6 & 6 & 6 & 5 & 8\\\\
+\\hline
+\\textbf{Osv.} & & & & & & & & & & \\\\
+\\hline
+\\end{tabular}\\\\[0.5em]
+\\textbf{UKUPNO: \\_\\_\\_\\_\\_ / 50}
+}
+\\end{center}
+
+\\vspace{0.5em}
+\\begin{flushright}
+{\\small\\textbf{Potpis nastavnika:} \\underline{\\hspace{4cm}}}
+\\end{flushright}
+
+\\end{document}`;
 
 async function generateTest() {
-  const _akField = document.getElementById('apiKey'); 
-  const apiKey = _akField ? _akField.value.trim() : '';
+  const apiKeyEl = document.getElementById('apiKey');
+  const apiKey = apiKeyEl ? apiKeyEl.value.trim() : '';
   const predmet = document.getElementById('predmet').value.trim();
   const tema = document.getElementById('tema').value.trim();
   const nastavnik = document.getElementById('nastavnik').value.trim();
@@ -804,19 +1056,27 @@ async function generateTest() {
   const tezina = document.getElementById('tezina').value;
   const napomene = document.getElementById('napomene').value.trim();
 
-  if (!predmet) return showStatus('error', 'Unesite naziv predmeta!');
-  if (!tema) return showStatus('error', 'Unesite temu testa!');
-  if (!razred) return showStatus('error', 'Unesite razred!');
+  if (!predmet) {
+    showStatus('error', 'Unesite naziv predmeta!');
+    return;
+  }
+  if (!tema) {
+    showStatus('error', 'Unesite temu testa!');
+    return;
+  }
+  if (!razred) {
+    showStatus('error', 'Unesite razred!');
+    return;
+  }
 
-  // Validacija za mode lekcije
   if (currentMode === 'lekcije' && lekcijeData.length > 0) {
-    const ukupnoLekcije = lekcijeData.reduce((sum, l) => sum + (l.bodovi || 0), 0);
+    const ukupnoLekcije = lekcijeData.reduce(function(sum, l) { return sum + (l.bodovi || 0); }, 0);
     if (ukupnoLekcije !== ukupnoBodova) {
-      return showStatus('error', `Raspodjela bodova po lekcijama (${ukupnoLekcije}) ne odgovara ukupnom broju bodova (${ukupnoBodova})!`);
+      showStatus('error', 'Raspodjela bodova po lekcijama (' + ukupnoLekcije + ') ne odgovara ukupnom broju bodova (' + ukupnoBodova + ')!');
+      return;
     }
   }
 
-  // Priprema podataka o lekcijama
   let lekcijeSadrzaj = [];
   if (currentMode === 'lekcije' && uploadedFiles.length > 0) {
     setLoadingPct(10, 'Obrada fajlova sa lekcijama...');
@@ -829,21 +1089,19 @@ async function generateTest() {
         let text = '';
         
         if (ext === 'txt' || ext === 'md') {
-          // Direktno čitanje tekstualnih fajlova
           text = await readFileAsText(file);
         } else {
-          // PDF i DOCX - šalji na server za obradu
           text = await extractTextFromFile(file);
         }
         
         lekcijeSadrzaj.push({
-          naziv: lekcijeData[i]?.naziv || file.name.replace(/\.[^/.]+$/, ""),
-          sadrzaj: text.substring(0, 10000), // Limit za API
-          bodovi: lekcijeData[i]?.bodovi || 0
+          naziv: lekcijeData[i] ? lekcijeData[i].naziv : file.name.replace(/\.[^/.]+$/, ""),
+          sadrzaj: text.substring(0, 10000),
+          bodovi: lekcijeData[i] ? lekcijeData[i].bodovi : 0
         });
       } catch (e) {
         console.warn('Ne mogu obraditi fajl:', file.name, e);
-        showStatus('error', `Greška pri obradi fajla: ${file.name}`);
+        showStatus('error', 'Greška pri obradi fajla: ' + file.name);
         setLoading(false);
         return;
       }
@@ -854,15 +1112,16 @@ async function generateTest() {
   showLoading();
   document.getElementById('pdfSection').classList.remove('visible');
 
-  // Odaberi prompt na osnovu moda
   let systemPrompt, userPrompt;
   
   if (currentMode === 'lekcije' && lekcijeSadrzaj.length > 0) {
-    // MODE: Generiši iz lekcija
-    [systemPrompt, userPrompt] = buildLekcijePrompt(predmet, tema, nastavnik, skola, razred, ukupnoBodova, tezina, napomene, lekcijeSadrzaj);
+    const rezultat = buildLekcijePrompt(predmet, tema, nastavnik, skola, razred, ukupnoBodova, tezina, napomene, lekcijeSadrzaj);
+    systemPrompt = rezultat[0];
+    userPrompt = rezultat[1];
   } else {
-    // MODE: Standardni test
-    [systemPrompt, userPrompt] = buildStandardPrompt(predmet, tema, nastavnik, skola, razred, ukupnoBodova, tezina, napomene);
+    const rezultat = buildStandardPrompt(predmet, tema, nastavnik, skola, razred, ukupnoBodova, tezina, napomene);
+    systemPrompt = rezultat[0];
+    userPrompt = rezultat[1];
   }
 
   try {
@@ -871,7 +1130,6 @@ async function generateTest() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        ...(apiKey ? {__api_key: apiKey} : {}),
         model: 'mistral-large-latest',
         max_tokens: 16000,
         temperature: 0.15,
@@ -884,7 +1142,7 @@ async function generateTest() {
 
     if (!response.ok) {
       const err = await response.json();
-      throw new Error(err.error?.message || `HTTP ${response.status}`);
+      throw new Error(err.error ? err.error.message : 'HTTP ' + response.status);
     }
 
     setLoadingPct(55, 'Generisanje završeno — priprema LaTeX dokumenta...');
@@ -907,11 +1165,10 @@ async function generateTest() {
     console.error(err);
     hideLoading();
     setLoading(false);
-    showStatus('error', `Greška: ${err.message}`);
+    showStatus('error', 'Greška: ' + err.message);
   }
 }
 
-// ===== PROMPT BUILDERS =====
 function buildStandardPrompt(predmet, tema, nastavnik, skola, razred, ukupnoBodova, tezina, napomene) {
   const systemPrompt = `Ti si LaTeX ekspert koji generiše testove znanja. Generiši test koji POTPUNO ISPUNAVA obje stranice A4 papira — bez ikakvog praznog prostora na dnu.
 
@@ -925,7 +1182,7 @@ KRITIČNA PRAVILA:
 
 === HEADER NA STRANICI 2 ===
 - NA VRHU STRANICE 2 MORA BITI HEADER:
-  {\\small\\textbf{Ime i prezime:} \\underline{\\hspace{4.5cm}} \\textbf{Razred:} \\underline{\\hspace{1.5cm}} \\textbf{Datum:} \\underline{\\hspace{2cm}} \\textbf{Bodovi:} \\underline{\\hspace{1cm}}/${ukupnoBodova}}
+  {\\small\\textbf{Ime i prezime:} \\underline{\\hspace{4.5cm}} \\textbf{Razred:} \\underline{\\hspace{1.5cm}} \\textbf{Datum:} \\underline{\\hspace{2cm}} \\textbf{Bodovi:} \\underline{\\hspace{1cm}}/` + ukupnoBodova + `}
 - Nakon headera: \\vspace{0.2em} \\hrule \\vspace{0.3em}
 - TEK ONDA zadaci 7-10
 
@@ -942,14 +1199,14 @@ KRITIČNA PRAVILA:
 ODGOVOR: SAMO LaTeX od \\documentclass do \\end{document}`;
 
   const userPrompt = `GENERIŠI STANDARDNI TEST ZA:
-- Škola: ${skola}
-- Predmet: ${predmet}
-- Tema: ${tema}
-- Nastavnik: ${nastavnik}
-- Razred: ${razred}
-- Ukupno bodova: ${ukupnoBodova}
-- Težina: ${tezina}
-${napomene ? `- Napomene: ${napomene}` : ''}
+- Škola: ` + skola + `
+- Predmet: ` + predmet + `
+- Tema: ` + tema + `
+- Nastavnik: ` + nastavnik + `
+- Razred: ` + razred + `
+- Ukupno bodova: ` + ukupnoBodova + `
+- Težina: ` + tezina + `
+` + (napomene ? '- Napomene: ' + napomene : '') + `
 
 NAJVAŽNIJE:
 - Header na vrhu stranice 2 (ime, razred, datum, bodovi)
@@ -971,14 +1228,13 @@ KRITIČNA PRAVILA:
 
 === HEADER NA STRANICI 2 ===
 - NA VRHU STRANICE 2 MORA BITI HEADER:
-  {\\small\\textbf{Ime i prezime:} \\underline{\\hspace{4.5cm}} \\textbf{Razred:} \\underline{\\hspace{1.5cm}} \\textbf{Datum:} \\underline{\\hspace{2cm}} \\textbf{Bodovi:} \\underline{\\hspace{1cm}}/${ukupnoBodova}}
+  {\\small\\textbf{Ime i prezime:} \\underline{\\hspace{4.5cm}} \\textbf{Razred:} \\underline{\\hspace{1.5cm}} \\textbf{Datum:} \\underline{\\hspace{2cm}} \\textbf{Bodovi:} \\underline{\\hspace{1cm}}/` + ukupnoBodova + `}
 - \\vspace{0.2em} \\hrule \\vspace{0.3em}
 - TEK ONDA zadaci 7-10
 
 === SADRŽAJ IZ LEKCIJA ===
 - Svako pitanje MORA biti bazirano na sadržaju određene lekcije
 - Raspodjela bodova prema zadanim parametrima po lekciji
-- Pitanja testiraju razumijevanje lekcija, ne općenito znanje
 
 === RAZMACI ===
 - itemsep: 0.6-0.8em
@@ -987,21 +1243,21 @@ KRITIČNA PRAVILA:
 ODGOVOR: SAMO LaTeX od \\documentclass do \\end{document}`;
 
   let userPrompt = `GENERIŠI TEST IZ LEKCIJA ZA:
-- Škola: ${skola}
-- Predmet: ${predmet}
-- Tema: ${tema}
-- Nastavnik: ${nastavnik}
-- Razred: ${razred}
-- Ukupno bodova: ${ukupnoBodova}
-- Težina: ${tezina}
-${napomene ? `- Napomene: ${napomene}` : ''}
+- Škola: ` + skola + `
+- Predmet: ` + predmet + `
+- Tema: ` + tema + `
+- Nastavnik: ` + nastavnik + `
+- Razred: ` + razred + `
+- Ukupno bodova: ` + ukupnoBodova + `
+- Težina: ` + tezina + `
+` + (napomene ? '- Napomene: ' + napomene : '') + `
 
 === LEKCIJE I RASPODJELA BODOVA ===
 `;
 
-  lekcijeSadrzaj.forEach((lekcija, idx) => {
-    userPrompt += `\nLEKCIJA ${idx + 1}: ${lekcija.naziv} (${lekcija.bodovi} bodova)\n`;
-    userPrompt += `SADRŽAJ:\n${lekcija.sadrzaj.substring(0, 4000)}\n`;
+  lekcijeSadrzaj.forEach(function(lekcija, idx) {
+    userPrompt += '\nLEKCIJA ' + (idx + 1) + ': ' + lekcija.naziv + ' (' + lekcija.bodovi + ' bodova)\n';
+    userPrompt += 'SADRŽAJ:\n' + lekcija.sadrzaj.substring(0, 4000) + '\n';
   });
 
   userPrompt += `\n=== INSTRUKCIJE ===
@@ -1015,18 +1271,16 @@ ${napomene ? `- Napomene: ${napomene}` : ''}
   return [systemPrompt, userPrompt];
 }
 
-// ===== FILE READING =====
 function readFileAsText(file) {
-  return new Promise((resolve, reject) => {
+  return new Promise(function(resolve, reject) {
     const reader = new FileReader();
-    reader.onload = (e) => resolve(e.target.result);
-    reader.onerror = (e) => reject(e);
+    reader.onload = function(e) { resolve(e.target.result); };
+    reader.onerror = function(e) { reject(e); };
     reader.readAsText(file);
   });
 }
 
 async function extractTextFromFile(file) {
-  // Šalji na server za obradu PDF/DOCX
   const formData = new FormData();
   formData.append('file', file);
   
@@ -1036,31 +1290,32 @@ async function extractTextFromFile(file) {
   });
   
   if (!response.ok) {
-    throw new Error(`Server nije mogao obraditi fajl: ${file.name}`);
+    throw new Error('Server nije mogao obraditi fajl: ' + file.name);
   }
   
   const data = await response.json();
   return data.text || '';
 }
 
-// ===== COMPILE & SHOW =====
 async function compileAndShow(latex, predmet, tema) {
   const filenameBase = predmet && tema
-    ? `${predmet}_${tema}`.replace(/\s+/g,'_').toLowerCase()
+    ? predmet + '_' + tema
     : 'dokument';
+  
+  const cleanBase = filenameBase.replace(/\s+/g,'_').toLowerCase();
 
   try {
     setLoadingPct(72, 'Kompajliranje — server proxy...');
     const resp = await fetch(API_BASE + '/api/compile', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ latex })
+      body: JSON.stringify({ latex: latex })
     });
     if (resp.ok) {
       const ct = resp.headers.get('content-type') || '';
       if (ct.includes('pdf')) {
         const blob = await resp.blob();
-        showPDF(blob, filenameBase, predmet, tema);
+        showPDF(blob, cleanBase, predmet, tema);
         return;
       }
     }
@@ -1073,25 +1328,28 @@ async function compileAndShow(latex, predmet, tema) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ compiler: 'pdflatex', resources: [{ main: true, content: latex }] })
     });
-    if (resp2.ok && (resp2.headers.get('content-type')||'').includes('pdf')) {
-      const blob2 = await resp2.blob();
-      showPDF(blob2, filenameBase, predmet, tema);
-      return;
+    if (resp2.ok) {
+      const ct2 = resp2.headers.get('content-type') || '';
+      if (ct2.includes('pdf')) {
+        const blob2 = await resp2.blob();
+        showPDF(blob2, cleanBase, predmet, tema);
+        return;
+      }
     }
   } catch(e2) { console.warn('YtoTech nedostupan:', e2.message); }
 
   setLoadingPct(100, 'Test generisan!');
-  setTimeout(() => {
+  setTimeout(function() {
     hideLoading();
     setLoading(false);
-    showFallbackUI(filenameBase, predmet, tema);
+    showFallbackUI(cleanBase, predmet, tema);
     showStatus('success', '✓ Test generisan! Klikni Otvori u Overleaf za PDF.');
   }, 600);
 }
 
 function showPDF(blob, filenameBase, predmet, tema) {
   const pdfUrl = URL.createObjectURL(blob);
-  const filename = `test_${filenameBase}.pdf`;
+  const filename = 'test_' + filenameBase + '.pdf';
   
   document.getElementById('pdfFilename').textContent = filename;
   
@@ -1121,7 +1379,7 @@ function showFallbackUI(filenameBase, predmet, tema) {
   document.getElementById('pdfSection').classList.add('visible');
   
   window._overleafData = {
-    filename: `test_${filenameBase}.tex`,
+    filename: 'test_' + filenameBase + '.tex',
     predmet: predmet,
     tema: tema
   };
@@ -1131,25 +1389,24 @@ function openOverleaf() {
   if (!generatedLatex) return;
   
   const encoded = encodeURIComponent(generatedLatex);
-  const filename = window._overleafData?.filename || 'test.tex';
+  const filename = window._overleafData && window._overleafData.filename ? window._overleafData.filename : 'test.tex';
   
-  const overleafUrl = `https://www.overleaf.com/docs?snip_uri=data:text/plain;charset=utf-8,${encoded}&filename=${filename}`;
+  const overleafUrl = 'https://www.overleaf.com/docs?snip_uri=data:text/plain;charset=utf-8,' + encoded + '&filename=' + filename;
   
   window.open(overleafUrl, '_blank');
 }
 
-// ===== INIT =====
 document.addEventListener('DOMContentLoaded', function() {
   if (WORKER_URL) {
     document.getElementById('serverBanner').style.display = 'block';
   }
   
   fetch('/api/key-status')
-    .then(r => r.json())
-    .then(data => {
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
       const envStatus = document.getElementById('envStatus');
       if (data.configured) {
-        envStatus.textContent = `✓ API ključ konfigurisan (${data.preview})`;
+        envStatus.textContent = '✓ API ključ konfigurisan (' + data.preview + ')';
         envStatus.style.cssText = 'background:rgba(26,107,58,.1);color:var(--green);border:1px solid rgba(26,107,58,.2)';
         envStatus.style.display = 'block';
       } else {
@@ -1159,7 +1416,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('apiKeyField').style.display = 'flex';
       }
     })
-    .catch(() => {
+    .catch(function() {
       document.getElementById('apiKeyField').style.display = 'flex';
     });
 });

@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generator Testova</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0f0f14;--paper:#f5f0e8;--cream:#ede7d5;
+  --blue:#003a70;--blue-mid:#0057a8;--blue-light:#e8f0fa;
+  --gold:#c8921a;--gold-light:#f1c94e;
+  --red:#b03030;--green:#1a6b3a;
+  --border:#c5b99a;--shadow:rgba(15,15,20,0.15)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);font-family:'Lora',Georgia,serif;min-height:100vh;overflow-x:hidden;position:relative}
+
+/* Animated background particles */
+body::before{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse at 15% 15%,rgba(0,58,112,.4) 0%,transparent 55%),
+             radial-gradient(ellipse at 85% 85%,rgba(200,146,26,.2) 0%,transparent 55%),
+             radial-gradient(ellipse at 50% 50%,rgba(0,87,168,.1) 0%,transparent 70%);
+  pointer-events:none;z-index:0;animation:bgpulse 8s ease-in-out infinite alternate}
+@keyframes bgpulse{0%{opacity:.7}100%{opacity:1}}
+
+.page-wrap{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:40px 24px 80px}
+
+/* ===== FLOATING PARTICLES ===== */
+.particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.particle{position:absolute;border-radius:50%;opacity:0;animation:floatup linear infinite}
+@keyframes floatup{
+  0%{transform:translateY(100vh) scale(0);opacity:0}
+  10%{opacity:.6}
+  90%{opacity:.2}
+  100%{transform:translateY(-20px) scale(1);opacity:0}
+}
+
+/* ===== HEADER ===== */
+header{text-align:center;padding:56px 0 48px;position:relative}
+header::after{content:'';display:block;width:160px;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  margin:32px auto 0;animation:lineexpand 1.2s ease forwards}
+@keyframes lineexpand{from{width:0;opacity:0}to{width:160px;opacity:1}}
+
+.header-eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:5px;
+  color:var(--gold);text-transform:uppercase;margin-bottom:20px;
+  animation:fadein .8s ease forwards;opacity:0;animation-delay:.2s}
+header h1{font-family:'Playfair Display',serif;font-size:clamp(2.6rem,5vw,4.2rem);
+  font-weight:900;color:var(--paper);line-height:1.1;letter-spacing:-.02em;
+  animation:slidein .9s ease forwards;opacity:0;animation-delay:.4s}
+header h1 span{color:var(--gold-light)}
+.header-sub{font-family:'Lora',serif;font-style:italic;font-size:1rem;
+  color:rgba(245,240,232,.5);margin-top:16px;
+  animation:fadein .8s ease forwards;opacity:0;animation-delay:.7s}
+@keyframes fadein{to{opacity:1}}
+@keyframes slidein{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== CARD ===== */
+.card{background:var(--paper);border-radius:6px;
+  box-shadow:0 8px 60px var(--shadow),inset 0 1px 0 rgba(255,255,255,.9);
+  position:relative;overflow:hidden;
+  animation:cardrise .8s ease forwards;opacity:0;animation-delay:.9s}
+@keyframes cardrise{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;
+  background:linear-gradient(90deg,var(--blue),var(--blue-mid),var(--gold),var(--gold-light),var(--gold));
+  background-size:200% 100%;animation:shimmer 3s linear infinite}
+@keyframes shimmer{0%{background-position:0% 0}100%{background-position:200% 0}}
+.card-inner{padding:40px 44px 44px}
+
+.api-section{margin-bottom:36px;padding-bottom:36px;border-bottom:1.5px solid var(--border)}
+.section-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;
+  text-transform:uppercase;color:var(--blue);margin-bottom:12px;
+  display:flex;align-items:center;gap:10px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.field-group{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:22px}
+.field-group.triple{grid-template-columns:1fr 1fr 1fr}
+.field-group.full{grid-template-columns:1fr}
+.field{display:flex;flex-direction:column;gap:8px}
+label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--blue);font-weight:500}
+input,textarea,select{font-family:'Lora',serif;font-size:14px;padding:12px 15px;
+  border:1.5px solid var(--border);background:var(--cream);border-radius:4px;
+  color:var(--ink);transition:all .2s;outline:none;width:100%}
+input:focus,textarea:focus,select:focus{border-color:var(--blue-mid);background:#fff;
+  box-shadow:0 0 0 3px rgba(0,87,168,.1)}
+input::placeholder,textarea::placeholder{color:rgba(15,15,20,.3);font-style:italic}
+textarea{resize:vertical;min-height:110px;line-height:1.6}
+.api-hint{font-family:'DM Mono',monospace;font-size:10px;color:rgba(15,15,20,.4);margin-top:5px}
+.api-hint a{color:var(--blue-mid)}
+
+.info-banner{background:rgba(200,146,26,.1);border:1px solid rgba(200,146,26,.3);
+  border-radius:4px;padding:13px 17px;margin-bottom:22px;
+  font-family:'DM Mono',monospace;font-size:10.5px;color:#7a5008;line-height:1.75}
+.info-banner strong{color:#6a4006}
+
+/* ===== BUTTON ===== */
+.btn-generate{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;
+  letter-spacing:.5px;cursor:pointer;border:none;border-radius:4px;
+  background:var(--blue);color:var(--paper);width:100%;
+  padding:18px 28px;margin-top:10px;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  box-shadow:0 4px 20px rgba(0,58,112,.4);
+  transition:all .25s;position:relative;overflow:hidden}
+.btn-generate::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent 30%,rgba(255,255,255,.08) 50%,transparent 70%);
+  transform:translateX(-100%);transition:transform .5s}
+.btn-generate:hover::before{transform:translateX(100%)}
+.btn-generate:hover:not(:disabled){background:var(--blue-mid);transform:translateY(-2px);
+  box-shadow:0 8px 30px rgba(0,87,168,.5)}
+.btn-generate:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-text{transition:all .2s}
+.spinner{width:20px;height:20px;border:2.5px solid rgba(245,240,232,.3);
+  border-top-color:var(--paper);border-radius:50%;
+  animation:spin .6s linear infinite;display:none;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== STATUS ===== */
+.status-bar{padding:13px 17px;border-radius:4px;font-family:'DM Mono',monospace;
+  font-size:12px;margin-top:20px;display:none;gap:10px;align-items:center}
+.status-bar.info{background:rgba(0,87,168,.1);color:var(--blue);border:1px solid rgba(0,87,168,.2);display:flex}
+.status-bar.success{background:rgba(26,107,58,.1);color:var(--green);border:1px solid rgba(26,107,58,.2);display:flex}
+.status-bar.error{background:rgba(176,48,48,.1);color:var(--red);border:1px solid rgba(176,48,48,.2);display:flex}
+.status-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.info .status-dot{background:var(--blue-mid);animation:pulse 1.2s ease infinite}
+.success .status-dot{background:var(--green)}
+.error .status-dot{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.7)}}
+
+/* ===== LOADING OVERLAY ===== */
+.loading-overlay{position:fixed;inset:0;background:rgba(15,15,20,.92);
+  z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;
+  backdrop-filter:blur(8px)}
+.loading-overlay.active{display:flex}
+
+.loading-orb{width:120px;height:120px;position:relative;margin-bottom:40px}
+.orb-ring{position:absolute;inset:0;border-radius:50%;border:3px solid transparent;animation:orbitring 2s linear infinite}
+.orb-ring:nth-child(1){border-top-color:var(--gold-light);animation-duration:1.5s}
+.orb-ring:nth-child(2){inset:10px;border-right-color:var(--blue-mid);animation-duration:2s;animation-direction:reverse}
+.orb-ring:nth-child(3){inset:22px;border-bottom-color:var(--gold);animation-duration:2.5s}
+@keyframes orbitring{to{transform:rotate(360deg)}}
+.orb-center{position:absolute;inset:36px;background:radial-gradient(circle,var(--gold-light),var(--gold));
+  border-radius:50%;animation:orbpulse 1.5s ease-in-out infinite}
+@keyframes orbpulse{0%,100%{transform:scale(.9);opacity:.8}50%{transform:scale(1.1);opacity:1}}
+
+.loading-title{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--paper);
+  font-weight:700;margin-bottom:12px;text-align:center}
+.loading-step{font-family:'DM Mono',monospace;font-size:12px;color:var(--gold);
+  text-align:center;letter-spacing:2px;min-height:20px;transition:all .4s}
+.loading-progress{width:280px;height:3px;background:rgba(255,255,255,.1);
+  border-radius:2px;margin-top:24px;overflow:hidden}
+.loading-bar{height:100%;background:linear-gradient(90deg,var(--blue-mid),var(--gold));
+  border-radius:2px;width:0%;transition:width .6s ease;animation:progressanim 0s linear forwards}
+
+.loading-facts{margin-top:32px;max-width:340px;text-align:center}
+.fact-card{background:rgba(255,255,255,.06);border:1px solid rgba(200,146,26,.2);
+  border-radius:6px;padding:16px 20px;font-family:'Lora',serif;font-style:italic;
+  font-size:13px;color:rgba(245,240,232,.7);line-height:1.6;
+  animation:factfade 4s ease-in-out infinite}
+@keyframes factfade{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* ===== PDF SECTION ===== */
+.pdf-section{margin-top:40px;display:none}
+.pdf-section.visible{display:block;animation:cardrise .6s ease forwards}
+.pdf-header{display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;flex-wrap:wrap;gap:12px}
+.pdf-title{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--paper);font-weight:700}
+.pdf-actions{display:flex;gap:10px;flex-wrap:wrap}
+
+.btn-dl{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;
+  letter-spacing:1px;cursor:pointer;border:1.5px solid;border-radius:3px;
+  padding:10px 18px;display:inline-flex;align-items:center;gap:8px;
+  transition:all .2s;text-decoration:none}
+.btn-dl-green{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-dl-green:hover{background:#145530;transform:translateY(-1px)}
+.btn-dl-outline{background:transparent;color:var(--paper);border-color:rgba(245,240,232,.3)}
+.btn-dl-outline:hover{background:rgba(255,255,255,.08)}
+
+.pdf-wrap{background:#404040;border-radius:6px;overflow:hidden;
+  box-shadow:0 8px 40px rgba(0,0,0,.5)}
+.pdf-topbar{background:#2d2d2d;padding:10px 16px;display:flex;align-items:center;gap:8px}
+.pdf-dot{width:11px;height:11px;border-radius:50%}
+.pdf-filename{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.35);margin-left:8px}
+#pdfFrame{width:100%;height:760px;border:none;display:block;background:#525659;min-height:400px}
+
+.ornament{text-align:center;color:rgba(200,146,26,.3);font-size:24px;
+  letter-spacing:10px;margin:36px 0 28px;user-select:none;
+  animation:ornamentpulse 3s ease-in-out infinite}
+@keyframes ornamentpulse{0%,100%{opacity:.3}50%{opacity:.7}}
+
+.fallback-box{display:none;background:var(--cream);border:2px dashed var(--border);
+  border-radius:6px;padding:32px;text-align:center;margin-top:8px}
+.fallback-box h3{font-family:'Playfair Display',serif;color:var(--blue);font-size:1.3rem;margin-bottom:12px}
+.fallback-box p{font-family:'Lora',serif;font-size:14px;color:var(--ink);line-height:1.7;margin-bottom:20px}
+.fallback-steps{list-style:none;text-align:left;display:inline-block;margin-bottom:24px}
+.fallback-steps li{font-family:'DM Mono',monospace;font-size:12px;color:var(--blue);
+  padding:6px 0;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:center}
+.fallback-steps li span{background:var(--blue);color:#fff;border-radius:50%;
+  width:22px;height:22px;display:flex;align-items:center;justify-content:center;
+  font-size:11px;flex-shrink:0}
+.btn-overleaf{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;
+  background:var(--blue);color:#fff;border:none;border-radius:4px;
+  padding:14px 28px;cursor:pointer;display:inline-flex;align-items:center;gap:10px;
+  box-shadow:0 4px 16px rgba(0,58,112,.35);transition:all .2s}
+.btn-overleaf:hover{background:var(--blue-mid);transform:translateY(-1px)}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:rgba(255,255,255,.03)}
+::-webkit-scrollbar-thumb{background:rgba(200,146,26,.3);border-radius:3px}
+@media(max-width:640px){
+  .card-inner{padding:20px 16px}
+  .field-group,.field-group.triple{grid-template-columns:1fr}
+  header{padding:36px 0 28px}
+  header h1{font-size:2.2rem}
+  .page-wrap{padding:20px 14px 60px}
+  #pdfFrame{height:calc(100vw * 1.41)}
+  .pdf-title{font-size:1.1rem}
+  .pdf-actions{width:100%;justify-content:stretch}
+  .btn-dl{flex:1;justify-content:center;font-size:11px;padding:10px 10px}
+  .pdf-wrap{border-radius:4px}
+  .loading-orb{width:90px;height:90px;margin-bottom:28px}
+  .loading-title{font-size:1.3rem}
+  .loading-facts{max-width:280px}
+  .loading-progress{width:220px}
+  .btn-generate{font-size:16px;padding:16px 20px}
+  .fallback-box{padding:20px}
+  .fallback-steps li{font-size:11px}
+}
+@media(max-width:400px){
+  #pdfFrame{height:calc(100vw * 1.5)}
+  header h1{font-size:1.9rem}
+}
+</style>
+</head>
+<body>
+
+<!-- Floating particles -->
+<div class="particles" id="particles"></div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-orb">
+    <div class="orb-ring"></div>
+    <div class="orb-ring"></div>
+    <div class="orb-ring"></div>
+    <div class="orb-center"></div>
+  </div>
+  <div class="loading-title">Generisanje testa</div>
+  <div class="loading-step" id="loadingStep">Inicijalizacija...</div>
+  <div class="loading-progress">
+    <div class="loading-bar" id="loadingBar"></div>
+  </div>
+  <div class="loading-facts">
+    <div class="fact-card" id="factCard">💡 Svaka dobra priprema štedi nastavniku sat vremena planiranja.</div>
+  </div>
+</div>
+
+<div class="page-wrap">
+  <header>
+    <div class="header-eyebrow">⸻ Generator Testova ⸻</div>
+    <h1>Generator<br><span>Testova</span></h1>
+    <p class="header-sub">Unesite podatke — AI generiše test prilagođen temi i razredu</p>
+  </header>
+
+  <div class="card">
+    <div class="card-inner">
+
+      <div class="api-section">
+        <div class="section-label">Konfiguracija</div>
+        <div class="info-banner" id="serverBanner" style="display:none">
+          ⓘ Cloudflare Worker proxy aktivan.
+        </div>
+        <!-- Status .env kljuca -->
+        <div id="envStatus" style="display:none;padding:10px 14px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px;margin-bottom:16px;"></div>
+        <!-- Fallback polje ako server nema .env -->
+        <div class="field" id="apiKeyField" style="display:none">
+          <label>API KEY (Mistral) — fallback</label>
+          <input type="password" id="apiKey" placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+          <div class="api-hint">Ili upiši ključ direktno ovdje. Besplatan: <a href="https://console.mistral.ai" target="_blank">console.mistral.ai</a></div>
+        </div>
+      </div>
+
+      <div class="section-label">Škola i nastavnik</div>
+      <div class="field-group" style="margin-bottom:22px">
+        <div class="field">
+          <label>Škola</label>
+          <input type="text" id="skola" value="Elektrotehnička škola Tuzla">
+        </div>
+        <div class="field">
+          <label>Nastavnik</label>
+          <input type="text" id="nastavnik" value="Adnan Sahanić, dipl. ing. el. teh.">
+        </div>
+      </div>
+
+      <div class="section-label">Podaci o testu</div>
+      <div class="field-group" style="margin-bottom:22px">
+        <div class="field">
+          <label>Predmet</label>
+          <input type="text" id="predmet" placeholder="npr. Elektronika, Fizika...">
+        </div>
+        <div class="field">
+          <label>Tema testa</label>
+          <input type="text" id="tema" placeholder="npr. Kirchhoffovi zakoni">
+        </div>
+      </div>
+
+      <div class="field-group triple" style="margin-bottom:22px">
+        <div class="field">
+          <label>Razred</label>
+          <input type="text" id="razred" placeholder="npr. Treći (III)">
+        </div>
+        <div class="field">
+          <label>Ukupno bodova</label>
+          <input type="number" id="ukupnoBodova" value="50" min="10" max="100">
+        </div>
+        <div class="field">
+          <label>Težina testa</label>
+          <select id="tezina">
+            <option value="lakši">Lakši</option>
+            <option value="srednji" selected>Srednji</option>
+            <option value="teži">Teži</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-label">Napomene (opciono)</div>
+      <div class="field-group full" style="margin-bottom:30px">
+        <div class="field">
+          <label>Posebne napomene / naglasci</label>
+          <textarea id="napomene" placeholder="npr. Fokus na mjerenje struje i otpora. Uključi bonus zadatak..."></textarea>
+        </div>
+      </div>
+
+      <button class="btn-generate" id="generateBtn" onclick="generatePriprema()">
+        <span class="btn-text" id="btnText">✦ Generiši i Kompajliraj Test</span>
+        <div class="spinner" id="btnSpinner"></div>
+      </button>
+
+      <div class="status-bar" id="statusBar">
+        <div class="status-dot"></div>
+        <span id="statusText"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="pdf-section" id="pdfSection">
+    <div class="ornament">✦ ✦ ✦</div>
+    <div class="pdf-header">
+      <div class="pdf-title">Test — PDF</div>
+      <div class="pdf-actions">
+        <a class="btn-dl btn-dl-outline" id="downloadTex" href="#" download="priprema.tex" style="display:none">↓ Skini .tex</a>
+        <a class="btn-dl btn-dl-outline" id="openPdfBtn" href="#" target="_blank" style="display:none">↗ Otvori PDF</a>
+        <a class="btn-dl btn-dl-green" id="downloadPdfBtn" href="#" download="priprema.pdf">⬇ Skini PDF</a>
+      </div>
+    </div>
+    <!-- Fallback kad CORS blokira kompajler -->
+    <div class="fallback-box" id="fallbackBox">
+      <h3>📄 LaTeX priprema je generisana!</h3>
+      <p>Online kompajler nije dostupan iz browsera (CORS ograničenje).<br>
+      Skini .tex fajl i kompajliraj u Overleaf — besplatno, bez instalacije.</p>
+      <ul class="fallback-steps">
+        <li><span>1</span> Klikni "Skini .tex" dugme gore</li>
+        <li><span>2</span> Otvori overleaf.com i napravi novi projekt</li>
+        <li><span>3</span> Upload-aj .tex fajl</li>
+        <li><span>4</span> Klikni Recompile → Download PDF</li>
+      </ul>
+      <br>
+      <button class="btn-overleaf" onclick="openOverleaf()">⚡ Otvori direktno u Overleaf</button>
+    </div>
+    <div class="pdf-wrap" id="pdfWrap">
+      <div class="pdf-topbar">
+        <div class="pdf-dot" style="background:#ff5f57"></div>
+        <div class="pdf-dot" style="background:#febc2e"></div>
+        <div class="pdf-dot" style="background:#28c840"></div>
+        <span class="pdf-filename" id="pdfFilename">priprema_nastavni_cas.pdf</span>
+      </div>
+      <iframe id="pdfFrame" title="PDF Preview"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== KONFIGURACIJA =====
+// Zamijeni ovaj URL sa tvojim Cloudflare Worker URL-om nakon deploya
+// Format: https://ime-workera.tvoje-ime.workers.dev
+const WORKER_URL = '';  // ← UPIŠI OVDJE SVOJ WORKER URL
+
+// Ako je WORKER_URL prazan, koristi relativni /api/mistral (za lokalni server)
+const API_BASE = WORKER_URL || '';
+
+// ===== PARTICLES =====
+(function(){
+  const container = document.getElementById('particles');
+  const colors = ['rgba(200,146,26,.4)','rgba(0,87,168,.3)','rgba(241,196,78,.3)','rgba(245,240,232,.15)'];
+  for(let i=0;i<25;i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random()*6+3;
+    p.style.cssText = `
+      width:${size}px;height:${size}px;
+      left:${Math.random()*100}%;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      animation-duration:${Math.random()*15+8}s;
+      animation-delay:${Math.random()*10}s;
+    `;
+    container.appendChild(p);
+  }
+})();
+
+// ===== LOADING FACTS =====
+const FACTS = [
+  '📝 Dobar test mjeri znanje, ne sposobnost pogađanja.',
+  '🎯 Jasno definisani bodovi po pitanju pomažu učenicima da rasporede vrijeme.',
+  '📊 Kombinacija tipova pitanja (višestruki izbor, esej, dopuna) daje bolji uvid u znanje.',
+  '⏱️ Preporučeno: 1 bod = 1 minut rješavanja testa.',
+  '🔬 Pitanja trebaju pokriti sve nivoe Bloomove taksonomije.',
+  '📚 Test od 50 bodova idealno stane na 2 lista A4 papira.',
+  '✏️ Različite težine pitanja motivišu i slabije i jače učenike.',
+  '🏫 Bonus zadaci nagrađuju napredne učenike bez penalizacije ostalih.',
+];
+let factIdx = 0;
+function rotateFact(){
+  const el = document.getElementById('factCard');
+  el.style.opacity='0';
+  setTimeout(()=>{
+    factIdx=(factIdx+1)%FACTS.length;
+    el.textContent=FACTS[factIdx];
+    el.style.opacity='1';
+  },400);
+}
+setInterval(rotateFact,4000);
+
+// ===== LOADING STEPS =====
+const STEPS = [
+  [5,'Priprema podataka...'],
+  [15,'Slanje upita Mistral AI-ju...'],
+  [30,'AI generiše nastavnu pripremu...'],
+  [55,'Priprema LaTeX dokumenta...'],
+  [70,'Slanje na kompajler...'],
+  [85,'Kompajliranje PDF-a...'],
+  [95,'Učitavanje rezultata...'],
+];
+let stepTimer=null;
+function startLoadingSteps(){
+  let i=0;
+  function next(){
+    if(i>=STEPS.length)return;
+    const [pct,msg]=STEPS[i];
+    document.getElementById('loadingBar').style.width=pct+'%';
+    document.getElementById('loadingStep').textContent=msg;
+    i++;
+    stepTimer=setTimeout(next, i===1?500 : i===2?1000 : i===3?8000 : i===4?3000 : i===5?5000 : 3000);
+  }
+  next();
+}
+function setLoadingPct(pct,msg){
+  document.getElementById('loadingBar').style.width=pct+'%';
+  if(msg)document.getElementById('loadingStep').textContent=msg;
+}
+
+function showLoading(){
+  document.getElementById('loadingOverlay').classList.add('active');
+  startLoadingSteps();
+}
+function hideLoading(){
+  clearTimeout(stepTimer);
+  document.getElementById('loadingBar').style.width='100%';
+  document.getElementById('loadingStep').textContent='Gotovo!';
+  setTimeout(()=>document.getElementById('loadingOverlay').classList.remove('active'),600);
+}
+
+// ===== STATUS =====
+function showStatus(type,msg){
+  const bar=document.getElementById('statusBar');
+  bar.className='status-bar '+type;
+  document.getElementById('statusText').textContent=msg;
+}
+function setLoading(on){
+  const btn=document.getElementById('generateBtn');
+  btn.disabled=on;
+  document.getElementById('btnSpinner').style.display=on?'block':'none';
+  document.getElementById('btnText').textContent=on?'Generisanje...':'✦ Generiši i Kompajliraj Test';
+}
+
+// ===== ORIGINAL DOC =====
+const ORIGINAL_DOC = `\\documentclass[a4paper,10pt]{article}
+\\usepackage[utf8]{inputenc}
+\\usepackage[T1]{fontenc}
+\\usepackage[croatian]{babel}
+\\usepackage[margin=1cm, top=1.2cm, bottom=1.2cm]{geometry}
+\\usepackage{enumitem}
+\\usepackage{multicol}
+\\usepackage{array}
+\\usepackage{fancyhdr}
+\\usepackage{xcolor}
+
+\\pagestyle{fancy}
+\\fancyhf{}
+\\fancyhead[C]{\\small\\textbf{TEST IZ ELEKTRIČNIH MJERENJA -- Digitalni multimetar}}
+\\fancyfoot[C]{\\thepage}
+\\renewcommand{\\headrulewidth}{0.5pt}
+
+\\setlength{\\parindent}{0pt}
+\\setlength{\\parskip}{0.3em}
+\\setlength{\\columnsep}{1cm}
+
+\\newcommand{\\linija}{\\underline{\\hspace{3.5cm}}}
+\\newcommand{\\kratka}{\\underline{\\hspace{1.2cm}}}
+
+\\begin{document}
+
+% ==================== STRANA 1 (PREDNJA) ====================
+\\begin{center}
+\\textbf{Ime i prezime:} \\underline{\\hspace{5cm}} \\quad \\textbf{Razred:} \\underline{\\hspace{2cm}} \\quad \\textbf{Datum:} \\underline{\\hspace{2.5cm}} \\quad \\textbf{Bodovi:} \\underline{\\hspace{1.2cm}}/50
+\\end{center}
+\\vspace{-0.2em}
+\\hrule
+\\vspace{0.6em}
+
+\\begin{multicols}{2}
+
+% ----- ZADATAK 1 -----
+\\textbf{1. VIŠESTRUKI IZBOR} \\hfill \\textit{(5 bodova)}
+
+\\vspace{0.6em}
+
+\\begin{enumerate}[label=\\textbf{1.\\arabic*.}, leftmargin=*, itemsep=1em]
+\\item Mjerna jedinica za električni napon je:\\\\[0.3em]
+a) Amper \\quad b) Om \\quad c) Volt \\quad d) Vat
+
+\\item Oznaka \\textbf{V\\textasciitilde} na multimetru označava:\\\\[0.3em]
+a) DC napon \\quad b) AC napon \\quad c) Otpor \\quad d) Frekvenciju
+
+\\item Mjerenje napona -- multimetar se spaja:\\\\[0.3em]
+a) Serijski \\quad b) Paralelno \\quad c) Umjesto potrošača
+
+\\item \\textbf{OL} na displeju multimetra znači:\\\\[0.3em]
+a) Niska baterija \\quad b) Prekoračenje opsega\\\\
+c) Greška sonde \\quad d) Isključen aparat
+
+\\item Mjerna jedinica za električni otpor je:\\\\[0.3em]
+a) Volt \\quad b) Amper \\quad c) Om \\quad d) Herc
+\\end{enumerate}
+
+\\vspace{1.2em}
+
+% ----- ZADATAK 2 -----
+\\textbf{2. TAČNO / NETAČNO} \\hfill \\textit{(5 bodova)}
+
+\\vspace{0.6em}
+
+\\begin{enumerate}[label=\\textbf{2.\\arabic*.}, leftmargin=*, itemsep=1em]
+\\item Otpor se može mjeriti dok je krug pod naponom. \\hfill T / N
+
+\\item Crna sonda se spaja na COM priključak. \\hfill T / N
+
+\\item Za mjerenje struje treba prekinuti krug. \\hfill T / N
+
+\\item DC napon periodično mijenja smjer. \\hfill T / N
+
+\\item Digitalni multimetar ima bolju čitljivost. \\hfill T / N
+\\end{enumerate}
+
+\\vspace{1.2em}
+
+% ----- ZADATAK 3 -----
+\\textbf{3. DOPUNI REČENICE} \\hfill \\textit{(6 bodova)}
+
+\\vspace{0.6em}
+
+\\begin{enumerate}[label=\\textbf{3.\\arabic*.}, leftmargin=*, itemsep=1em]
+\\item Električni napon je razlika \\linija između dvije tačke u električnom krugu.
+
+\\item Električna struja je usmjereno kretanje \\linija čestica kroz provodnik.
+
+\\item Električni otpor se mjeri u \\linija.
+
+\\item Rotacijski prekidač služi za odabir \\linija i mjernog opsega.
+
+\\item Crvena sonda se spaja na priključak označen sa \\linija.
+
+\\item Rezolucija je \\linija promjena koju instrument može detektovati.
+\\end{enumerate}
+
+\\columnbreak
+
+% ----- ZADATAK 4 -----
+\\textbf{4. POVEŽI POJMOVE} \\hfill \\textit{(5 bodova)}
+
+\\vspace{0.6em}
+
+\\begin{tabular}{|c|p{2.8cm}|c|p{3.5cm}|}
+\\hline
+\\textbf{} & \\textbf{Pojam} & \\textbf{} & \\textbf{Objašnjenje}\\\\
+\\hline
+& & & \\\\[-0.5em]
+1 & V= (DC) & A & Nuliranje vrijednosti\\\\[0.3em]
+\\hline
+& & & \\\\[-0.5em]
+2 & 4-žični metod & B & Istosmjerni napon\\\\[0.3em]
+\\hline
+& & & \\\\[-0.5em]
+3 & REL funkcija & C & Blizina izmj. vrijednosti\\\\[0.3em]
+\\hline
+& & & \\\\[-0.5em]
+4 & Preciznost & D & Kelvinovo mjerenje\\\\[0.3em]
+\\hline
+& & & \\\\[-0.5em]
+5 & Tačnost & E & Blizina stvarnoj vrijed.\\\\[0.3em]
+\\hline
+\\end{tabular}
+
+\\vspace{0.8em}
+\\textbf{Odgovori:} 1-\\kratka 2-\\kratka 3-\\kratka 4-\\kratka 5-\\kratka
+
+\\vspace{1.5em}
+
+% ----- ZADATAK 5 -----
+\\textbf{5. KRATKI ODGOVORI} \\hfill \\textit{(8 bodova)}
+
+\\vspace{0.6em}
+
+\\begin{enumerate}[label=\\textbf{5.\\arabic*.}, leftmargin=*, itemsep=0.5em]
+\\item Šta je digitalni multimetar? \\textit{(2b)}
+
+\\vspace{2cm}
+
+\\item Navedi 3 osnovne električne veličine koje mjeri multimetar. \\textit{(3b)}
+
+\\vspace{2cm}
+
+\\item Koja je razlika između DC i AC napona? \\textit{(3b)}
+
+\\vspace{2cm}
+
+\\end{enumerate}
+
+% ----- ZADATAK 6 -----
+\\textbf{6. NABRAJANJE} \\hfill \\textit{(6 bodova)}
+
+\\vspace{0.6em}
+
+\\begin{enumerate}[label=\\textbf{6.\\arabic*.}, leftmargin=*, itemsep=0.8em]
+\\item Navedi tri prednosti digitalnog nad analognim multimetrom: \\textit{(3b)}
+
+\\vspace{0.4em}
+a) \\linija\\\\[0.6em]
+b) \\linija\\\\[0.6em]
+c) \\linija
+
+\\vspace{0.5em}
+
+\\item Navedi tri osnovna dijela digitalnog multimetra: \\textit{(3b)}
+
+\\vspace{0.4em}
+a) \\linija\\\\[0.6em]
+b) \\linija\\\\[0.6em]
+c) \\linija
+\\end{enumerate}
+
+\\end{multicols}
+
+\\vspace{0.3em}
+\\hrule
+\\begin{flushright}
+\\textit{Okreni list} $\\rightarrow$
+\\end{flushright}
+
+\\newpage
+
+% ==================== STRANA 2 (ZADNJA) ====================
+
+\\begin{multicols}{2}
+
+% ----- ZADATAK 7 -----
+\\textbf{7. SPAJANJE MULTIMETRA} \\hfill \\textit{(6 bodova)}
+
+\\vspace{0.8em}
+
+\\begin{enumerate}[label=\\textbf{7.\\arabic*.}, leftmargin=*, itemsep=0.6em]
+\\item Kako se multimetar spaja za mjerenje NAPONA? \\textit{(2b)}
+
+\\vspace{2.5cm}
+
+\\item Kako se multimetar spaja za mjerenje STRUJE? \\textit{(2b)}
+
+\\vspace{2.5cm}
+
+\\item Zašto je potrebno prekinuti krug prije mjerenja struje? \\textit{(2b)}
+
+\\vspace{2.5cm}
+
+\\end{enumerate}
+
+\\vspace{1em}
+
+% ----- ZADATAK 8 -----
+\\textbf{8. MJERENJE OTPORA} \\hfill \\textit{(6 bodova)}
+
+\\vspace{0.8em}
+
+\\begin{enumerate}[label=\\textbf{8.\\arabic*.}, leftmargin=*, itemsep=0.6em]
+\\item Zašto se otpor NE smije mjeriti u uključenom krugu? \\textit{(2b)}
+
+\\vspace{2.5cm}
+
+\\item Objasni osnovni princip mjerenja otpora multimetrom. \\textit{(2b)}
+
+\\vspace{2.5cm}
+
+\\item Šta predstavlja 4-žični (Kelvin) metod mjerenja? \\textit{(2b)}
+
+\\vspace{2.5cm}
+
+\\end{enumerate}
+
+\\columnbreak
+
+% ----- ZADATAK 9 -----
+\\textbf{9. SONDE I SIGURNOST} \\hfill \\textit{(5 bodova)}
+
+\\vspace{0.8em}
+
+\\begin{enumerate}[label=\\textbf{9.\\arabic*.}, leftmargin=*, itemsep=0.6em]
+\\item Gdje se spaja crna, a gdje crvena mjerna sonda? \\textit{(2b)}
+
+\\vspace{2.5cm}
+
+\\item Navedi tri sigurnosna pravila pri radu sa multimetrom: \\textit{(3b)}
+
+\\vspace{0.5em}
+a) \\linija\\\\[0.8em]
+b) \\linija\\\\[0.8em]
+c) \\linija
+\\end{enumerate}
+
+\\vspace{1.2em}
+
+% ----- ZADATAK 10 -----
+\\textbf{10. POJMOVI I FUNKCIJE} \\hfill \\textit{(8 bodova)}
+
+\\vspace{0.8em}
+
+\\begin{enumerate}[label=\\textbf{10.\\arabic*.}, leftmargin=*, itemsep=0.6em]
+\\item Šta je električna struja i koja je njena mjerna jedinica? \\textit{(2b)}
+
+\\vspace{2.5cm}
+
+\\item Šta znače oznake V= i V\\textasciitilde{} na multimetru? \\textit{(2b)}
+
+\\vspace{2.5cm}
+
+\\item Objasni razliku između tačnosti i preciznosti mjerenja. \\textit{(2b)}
+
+\\vspace{2.5cm}
+
+\\item Čemu služi funkcija REL (relative) na multimetru? \\textit{(2b)}
+
+\\vspace{2.5cm}
+
+\\end{enumerate}
+
+\\end{multicols}
+
+\\vspace{2.7em}
+\\hrule
+\\vspace{0.5em}
+
+\\vspace{2.5em}
+\\begin{multicols}{2}
+
+\\textbf{11. BONUS ZADATAK} \\hfill \\textit{(+5 bodova)}
+
+\\vspace{2.5em}
+
+Na kojem principu digitalni multimetar mjeri istosmjernu struju? Objasni detaljno.
+
+\\vspace{0.5cm}
+
+\\columnbreak
+
+\\begin{center}
+\\textbf{TABELA BODOVANJA}\\\\[0.8em]
+\\begin{tabular}{|c|c|c|c|c|c|c|}
+\\hline
+\\textbf{Zadatak} & 1-2 & 3-4 & 5-6 & 7-8 & 9-10 & 11\\\\
+\\hline
+& & & & & & \\\\[-0.3em]
+\\textbf{Max} & 10 & 11 & 14 & 12 & 13 & +5\\\\[0.3em]
+\\hline
+& & & & & & \\\\[-0.3em]
+\\textbf{Osvojeno} & & & & & & \\\\[0.3em]
+\\hline
+\\end{tabular}\\\\[1em]
+\\textbf{UKUPNO: \\_\\_\\_\\_\\_\\_ / 50 (+5)}\\\\[0.8em]
+\\end{center}
+
+\\end{multicols}
+
+\\end{document}`;
+
+// ===== GENERATE + AUTO COMPILE =====
+let generatedLatex = '';
+
+async function generatePriprema() {
+  const _akField = document.getElementById('apiKey'); const apiKey = _akField ? _akField.value.trim() : '';
+  const predmet = document.getElementById('predmet').value.trim();
+  const tema = document.getElementById('tema').value.trim();
+  const nastavnik = document.getElementById('nastavnik').value.trim();
+  const skola = document.getElementById('skola').value.trim();
+  const razred = document.getElementById('razred').value.trim();
+  const ukupnoBodova = document.getElementById('ukupnoBodova').value;
+  const tezina = document.getElementById('tezina').value;
+  const napomene = document.getElementById('napomene').value.trim();
+
+  // apiKey nije obavezan ako je postavljen u .env
+  if (!predmet) return showStatus('error', 'Unesite naziv predmeta!');
+  if (!tema) return showStatus('error', 'Unesite nastavnu jedinicu (temu)!');
+  if (!razred) return showStatus('error', 'Unesite razred!');
+  if (!tema) return showStatus('error', 'Unesite temu testa!');
+
+  setLoading(true);
+  showLoading();
+  document.getElementById('pdfSection').classList.remove('visible');
+
+  const systemPrompt = `Ti si iskusan nastavnik i LaTeX ekspert koji generiše testove znanja.
+Dobijas kompletan LaTeX test kao referencu. Generišeš NOVI test sa novim pitanjima za zadanu temu.
+
+PRAVILA ZA GENERISANJE TESTA (SVA MORAJU BITI ISPUNJENA):
+1. Zadrži IDENTIČNU LaTeX strukturu: documentclass, geometry, multicols, fancyhdr, enumerate, tabular
+2. Test mora stati na TAČNO 2 stranice A4 — ni manje ni više
+3. Zadrži isti layout: multicols{2} na obje stranice, hrule separator, "Okreni list" na kraju prve stranice
+4. Zadrži iste tipove zadataka: višestruki izbor, tačno/netačno, dopuni rečenice, poveži pojmove, kratki odgovori, nabrajanje, esejska pitanja, bonus
+5. Zadrži iste LaTeX komande: \\linija, \\kratka, \\newcommand definicije u preambuli
+6. Prilagodi zaglavlje: naziv testa u \\fancyhead mora odgovarati predmetu i temi
+7. Zaglavlje učenika (Ime, Razred, Datum, Bodovi) ostaje identično po formatu
+8. Tabela bodovanja na kraju mora odgovarati stvarnim bodovima zadataka i biti točna
+9. Ukupan broj bodova mora biti TOČNO onoliko koliko je zadano parametrom
+10. Mijenjaj SAMO: pitanja, odgovore, temu, predmet, nastavnika, školu, razred, bodove
+11. Pitanja moraju biti STRUČNO TAČNA za zadanu temu i predmet
+12. Prilagodi težinu pitanja prema zadanoj težini (lakši/srednji/teži)
+13. Jezik: bosanski/hrvatski ijekavica
+14. Vrati KOMPLETAN LaTeX dokument od \\documentclass do \\end{document}
+15. Bez markdown ograđivanja, bez objašnjenja — samo čisti LaTeX`;
+
+  const userPrompt = `Referentni LaTeX dokument (template testa):
+
+${ORIGINAL_DOC}
+
+---
+GENERIŠI TEST ZA:
+- Škola: ${skola}
+- Predmet: ${predmet}
+- Tema testa: ${tema}
+- Nastavnik: ${nastavnik}
+- Razred: ${razred}
+- Ukupno bodova: ${ukupnoBodova}
+- Težina: ${tezina}
+${napomene ? `- Napomene: ${napomene}` : ''}
+
+VAŽNO: Test mora stati na TAČNO 2 stranice A4. Zadrži identičnu LaTeX strukturu. Generiši nova pitanja relevantna za temu. Vrati kompletan LaTeX dokument.`;
+
+  try {
+    setLoadingPct(20, 'Slanje upita Mistral AI-ju...');
+    const response = await fetch(API_BASE + '/api/mistral', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...(apiKey ? {__api_key: apiKey} : {}),
+        model: 'mistral-large-latest',
+        max_tokens: 16000,
+        temperature: 0.15,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ]
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error?.message || `HTTP ${response.status}`);
+    }
+
+    setLoadingPct(55, 'AI završio — priprema LaTeX dokumenta...');
+    const data = await response.json();
+    let latex = data.choices[0].message.content.trim();
+
+    // Cleanup markdown fences
+    latex = latex.replace(/^```latex[^\n]*/im,'').replace(/^```tex[^\n]*/im,'')
+                 .replace(/^```[^\n]*/im,'').replace(/```[\s\S]*$/gim,'').trim();
+    const ds = latex.indexOf('\\documentclass');
+    if (ds > 0) latex = latex.substring(ds);
+    if (!latex.includes('\\documentclass')) throw new Error('AI nije vratio validan LaTeX. Pokušaj ponovo.');
+    if (!latex.includes('\\end{document}')) latex += '\n\\end{document}';
+
+    generatedLatex = latex;
+
+    // Setup download .tex link
+    const texBlob = new Blob([latex], {type:'text/plain;charset=utf-8'});
+    const texUrl = URL.createObjectURL(texBlob);
+    const dlTex = document.getElementById('downloadTex');
+    dlTex.href = texUrl;
+    dlTex.download = `priprema_${predmet}_${tema}.tex`.replace(/\s+/g,'_').toLowerCase();
+
+    // Now auto-compile
+    setLoadingPct(65, 'Kompajliranje PDF-a na TeXLive.net...');
+    await compileAndShow(latex, predmet, tema);
+
+  } catch(err) {
+    console.error(err);
+    hideLoading();
+    setLoading(false);
+    showStatus('error', `Greška: ${err.message}`);
+  }
+}
+
+async function compileAndShow(latex, predmet, tema) {
+  const filename = `priprema_${predmet}_${tema}`.replace(/\s+/g,'_').toLowerCase();
+
+  // --- Pokusaj 1: YtoTech API (ima CORS) ---
+  try {
+    setLoadingPct(72, 'Kompajliranje — YtoTech LaTeX API...');
+    const resp = await fetch('https://latex.ytotech.com/builds/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        compiler: 'pdflatex',
+        resources: [{ main: true, content: latex }]
+      })
+    });
+    if (resp.ok) {
+      const ct = resp.headers.get('content-type') || '';
+      if (ct.includes('pdf')) {
+        const blob = await resp.blob();
+        showPDF(blob, filename, predmet, tema);
+        return;
+      }
+    }
+  } catch(e1) { console.warn('YtoTech nije dostupan:', e1.message); }
+
+  // --- Pokusaj 2: TeXLive formData ---
+  try {
+    setLoadingPct(82, 'Kompajliranje — TeXLive.net...');
+    const fd = new FormData();
+    fd.append('filecontents[]', latex);
+    fd.append('filename[]', 'document.tex');
+    fd.append('engine', 'pdflatex');
+    fd.append('return', 'pdf');
+    const resp2 = await fetch('https://texlive.net/cgi-bin/latexcgi', {
+      method: 'POST', body: fd
+    });
+    if (resp2.ok) {
+      const ct2 = resp2.headers.get('content-type') || '';
+      if (ct2.includes('pdf')) {
+        const blob2 = await resp2.blob();
+        showPDF(blob2, filename, predmet, tema);
+        return;
+      }
+    }
+  } catch(e2) { console.warn('TeXLive CORS blokiran:', e2.message); }
+
+  // --- Fallback: nema online kompajlera dostupnog ---
+  // Prikazujemo lijepu stranicu sa uputstvima
+  setLoadingPct(100, 'Priprema gotova!');
+  setTimeout(() => {
+    hideLoading();
+    setLoading(false);
+    showFallbackUI(filename, predmet, tema);
+    showStatus('success', `✓ LaTeX test generisan! Skini .tex fajl i kompajliraj u Overleaf.`);
+  }, 600);
+}
+
+function showPDF(blob, filename, predmet, tema) {
+  const pdfUrl = URL.createObjectURL(blob);
+  document.getElementById('pdfFrame').src = pdfUrl;
+  document.getElementById('pdfFilename').textContent = filename + '.pdf';
+  const dlPdf = document.getElementById('downloadPdfBtn');
+  dlPdf.href = pdfUrl;
+  dlPdf.download = filename + '.pdf';
+  dlPdf.style.display = 'inline-flex';
+  // Na mobilnom dodaj i "Otvori PDF" dugme (iframe moze biti problem)
+  const openBtn = document.getElementById('openPdfBtn');
+  openBtn.href = pdfUrl;
+  openBtn.style.display = 'inline-flex';
+
+  setLoadingPct(100, 'Gotovo!');
+  setTimeout(() => {
+    hideLoading();
+    setLoading(false);
+    // Sakrij fallback, pokazi PDF frame
+    document.getElementById('fallbackBox').style.display = 'none';
+    document.getElementById('pdfWrap').style.display = 'block';
+    document.getElementById('pdfSection').classList.add('visible');
+    showStatus('success', `✓ Test generisan! Predmet: ${predmet} — Tema: ${tema}`);
+    document.getElementById('pdfSection').scrollIntoView({behavior:'smooth',block:'start'});
+  }, 700);
+}
+
+function showFallbackUI(filename, predmet, tema) {
+  document.getElementById('pdfWrap').style.display = 'none';
+  document.getElementById('downloadPdfBtn').style.display = 'none';
+  const fb = document.getElementById('fallbackBox');
+  fb.style.display = 'block';
+  document.getElementById('pdfSection').classList.add('visible');
+  document.getElementById('pdfSection').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function openOverleaf() {
+  if (generatedLatex) _overleafPost(generatedLatex);
+}
+
+function _overleafPost(latex) {
+  const form = document.createElement('form');
+  form.method='POST'; form.action='https://www.overleaf.com/docs'; form.target='_blank';
+  const inp = document.createElement('input');
+  inp.type='hidden'; inp.name='snip'; inp.value=latex; form.appendChild(inp);
+  const nm = document.createElement('input');
+  nm.type='hidden'; nm.name='snip_name'; nm.value='priprema.tex'; form.appendChild(nm);
+  document.body.appendChild(form); form.submit(); document.body.removeChild(form);
+}
+
+// ===== SESSION STORAGE =====
+// ===== ENV KEY STATUS =====
+async function checkEnvKey() {
+  try {
+    const r = await fetch(API_BASE + '/api/key-status');
+    if (!r.ok) throw new Error('no server');
+    const d = await r.json();
+    const box = document.getElementById('envStatus');
+    const field = document.getElementById('apiKeyField');
+    if (d.configured) {
+      box.style.display = 'block';
+      box.style.background = 'rgba(26,107,58,.1)';
+      box.style.border = '1px solid rgba(26,107,58,.2)';
+      box.style.color = 'var(--green)';
+      box.innerHTML = '✓ API ključ učitan iz .env &nbsp;(' + d.preview + ')';
+      field.style.display = 'none';
+    } else {
+      box.style.display = 'block';
+      box.style.background = 'rgba(176,48,48,.08)';
+      box.style.border = '1px solid rgba(176,48,48,.2)';
+      box.style.color = 'var(--red)';
+      box.innerHTML = '✗ .env fajl nema API ključa — upiši ga ispod ili u .env';
+      field.style.display = 'block';
+      const saved = localStorage.getItem('mistral_api_key');
+      if (saved) document.getElementById('apiKey').value = saved;
+    }
+  } catch(e) {
+    // Server nije aktivan - pokaži fallback polje
+    const field = document.getElementById('apiKeyField');
+    field.style.display = 'block';
+    const saved = localStorage.getItem('mistral_api_key');
+    if (saved) document.getElementById('apiKey').value = saved;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', checkEnvKey);
+
+// Fallback localStorage
+const _akEl = document.getElementById('apiKey');
+if (_akEl) _akEl.addEventListener('input', function(){
+  localStorage.setItem('mistral_api_key', this.value);
+});
+</script>
+</body>
+</html>

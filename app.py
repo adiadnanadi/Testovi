@@ -14,7 +14,7 @@ from flask import Flask, send_file, request, jsonify
 app = Flask(__name__)
 
 BASE_DIR        = Path(__file__).parent
-HTML_FILE       = BASE_DIR / "priprema-generator.html"
+HTML_FILE       =  BASE_DIR / "generator-testova.html"
 HTML_TESTOVI    = BASE_DIR / "generator-testova.html"
 MISTRAL_URL     = "https://api.mistral.ai/v1/chat/completions"
 

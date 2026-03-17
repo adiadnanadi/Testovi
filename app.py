@@ -70,34 +70,32 @@ def compile_latex():
         if not latex:
             return jsonify({"error": "Nema LaTeX sadrzaja"}), 400
 
-        import urllib.parse
-        # Posalji na TeXLive kao multipart form
+        # Koristimo FormData za slanje na TeXLive
+        from urllib.parse import quote
         boundary = "----FormBoundary7MA4YWxkTrZu0gW"
-        body_parts = []
-        for name, value in [
-            ("filecontents[]", latex),
-            ("filename[]", "document.tex"),
-            ("engine", "pdflatex"),
-            ("return", "pdf")
-        ]:
-            body_parts.append(
-                f"--{boundary}
-"
-                f'Content-Disposition: form-data; name="{name}"
-
-'
-                f"{value}
-"
+        CRLF = "\r\n"
+        
+        def form_field(name, value):
+            return (
+                "--" + boundary + CRLF +
+                "Content-Disposition: form-data; name=\"" + name + "\"" + CRLF + CRLF +
+                value + CRLF
             )
-        body_parts.append(f"--{boundary}--
-")
-        body = "".join(body_parts).encode("utf-8")
+        
+        body_str = (
+            form_field("filecontents[]", latex) +
+            form_field("filename[]", "document.tex") +
+            form_field("engine", "pdflatex") +
+            form_field("return", "pdf") +
+            "--" + boundary + "--" + CRLF
+        )
+        body = body_str.encode("utf-8")
 
         req = urllib.request.Request(
             "https://texlive.net/cgi-bin/latexcgi",
             data=body,
             headers={
-                "Content-Type": f"multipart/form-data; boundary={boundary}",
+                "Content-Type": "multipart/form-data; boundary=" + boundary,
                 "Content-Length": str(len(body)),
             },
             method="POST"
@@ -116,7 +114,6 @@ def compile_latex():
                 headers={"Access-Control-Allow-Origin": "*"}
             )
         else:
-            # TeXLive vratio gresku - pokazi log
             return jsonify({
                 "error": "LaTeX kompajliranje nije uspjelo",
                 "log": pdf_bytes.decode("utf-8", errors="replace")[:500]
@@ -124,7 +121,7 @@ def compile_latex():
 
     except urllib.error.HTTPError as e:
         err = e.read().decode("utf-8", errors="replace")
-        return jsonify({"error": f"TeXLive HTTP greska: {e.code}", "log": err[:300]}), 502
+        return jsonify({"error": "TeXLive HTTP greska " + str(e.code), "log": err[:300]}), 502
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

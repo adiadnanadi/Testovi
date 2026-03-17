@@ -1,4 +1,6 @@
-flask==3.0.3
-gunicorn==22.0.0
+flask
+flask-cors
+gunicorn
 PyPDF2
 docx2txt
+python-docx

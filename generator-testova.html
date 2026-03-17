@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Generator Testova</title>
+<title>Generator Testova Pro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
@@ -94,6 +94,24 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
   border-radius:4px;padding:13px 17px;margin-bottom:22px;
   font-family:'DM Mono',monospace;font-size:10.5px;color:#7a5008;line-height:1.75}
 .info-banner strong{color:#6a4006}
+
+/* ===== FILE UPLOAD ===== */
+.file-upload-area{background:var(--cream);border:2px dashed var(--border);border-radius:6px;
+  padding:24px;text-align:center;transition:all .2s;cursor:pointer;position:relative}
+.file-upload-area:hover{border-color:var(--blue-mid);background:#fff}
+.file-upload-area.dragover{border-color:var(--gold);background:rgba(200,146,26,.1)}
+.file-upload-area input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.upload-icon{font-size:32px;color:var(--blue);margin-bottom:8px}
+.upload-text{font-family:'Lora',serif;font-size:14px;color:var(--ink);margin-bottom:4px}
+.upload-hint{font-family:'DM Mono',monospace;font-size:10px;color:rgba(15,15,20,.5)}
+.file-list{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.file-item{display:flex;align-items:center;gap:10px;background:#fff;padding:10px 14px;
+  border-radius:4px;border:1px solid var(--border);font-family:'DM Mono',monospace;font-size:12px}
+.file-item button{margin-left:auto;background:transparent;border:none;color:var(--red);cursor:pointer;font-size:16px;line-height:1}
+.file-item button:hover{color:#8b2222}
+.file-content-preview{background:#fff;border:1px solid var(--border);border-radius:4px;
+  padding:12px;margin-top:12px;max-height:150px;overflow-y:auto;font-family:'DM Mono',monospace;
+  font-size:11px;line-height:1.5;color:rgba(15,15,20,.7);white-space:pre-wrap;word-break:break-word}
 
 /* ===== BUTTON ===== */
 .btn-generate{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;
@@ -225,6 +243,7 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
   .btn-generate{font-size:16px;padding:16px 20px}
   .fallback-box{padding:20px}
   .fallback-steps li{font-size:11px}
+  .file-upload-area{padding:16px}
 }
 @media(max-width:400px){
   #pdfFrame{height:calc(100vw * 1.5)}
@@ -257,7 +276,7 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
 
 <div class="page-wrap">
   <header>
-    <div class="header-eyebrow">⸻ Generator Testova ⸻</div>
+    <div class="header-eyebrow">⸻ Generator Testova Pro ⸻</div>
     <h1>Generator<br><span>Testova</span></h1>
     <p class="header-sub">Unesite podatke — AI generiše test prilagođen temi i razredu</p>
   </header>
@@ -323,6 +342,20 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
         </div>
       </div>
 
+      <div class="section-label">Upload Dokumenata (Opciono)</div>
+      <div class="field-group full" style="margin-bottom:22px">
+        <div class="field">
+          <div class="file-upload-area" id="dropZone">
+            <input type="file" id="fileInput" multiple accept=".txt,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.csv,.json,.md,.tex,.html,.xml">
+            <div class="upload-icon">📎</div>
+            <div class="upload-text">Povuci i ispusti dokumente ili klikni za odabir</div>
+            <div class="upload-hint">Podržani formati: TXT, PDF, DOC, XLS, PPT, CSV, JSON, MD, TEX, HTML</div>
+          </div>
+          <div class="file-list" id="fileList"></div>
+          <div class="file-content-preview" id="filePreview" style="display:none"></div>
+        </div>
+      </div>
+
       <div class="section-label">Napomene (opciono)</div>
       <div class="field-group full" style="margin-bottom:30px">
         <div class="field">
@@ -381,12 +414,12 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
 
 <script>
 // ===== KONFIGURACIJA =====
-// Zamijeni ovaj URL sa tvojim Cloudflare Worker URL-om nakon deploya
-// Format: https://ime-workera.tvoje-ime.workers.dev
 const WORKER_URL = '';  // ← UPIŠI OVDJE SVOJ WORKER URL
-
-// Ako je WORKER_URL prazan, koristi relativni /api/mistral (za lokalni server)
 const API_BASE = WORKER_URL || '';
+
+// ===== GLOBALNE VARIJABLE =====
+let uploadedFiles = [];
+let uploadedContent = '';
 
 // ===== PARTICLES =====
 (function(){
@@ -401,11 +434,112 @@ const API_BASE = WORKER_URL || '';
       left:${Math.random()*100}%;
       background:${colors[Math.floor(Math.random()*colors.length)]};
       animation-duration:${Math.random()*15+8}s;
-      animation-delay:${Math.random()*10}s;
+      animation-delay:${Math.random()*10)s;
     `;
     container.appendChild(p);
   }
 })();
+
+// ===== FILE UPLOAD =====
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const fileList = document.getElementById('fileList');
+const filePreview = document.getElementById('filePreview');
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  dropZone.classList.add('dragover');
+});
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  handleFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+async function handleFiles(files) {
+  const newFiles = Array.from(files);
+  uploadedFiles = [...uploadedFiles, ...newFiles];
+  renderFileList();
+  
+  // Čitanje sadržaja tekstualnih fajlova
+  for (const file of newFiles) {
+    if (isTextFile(file)) {
+      try {
+        const content = await readFileAsText(file);
+        uploadedContent += `\n\n--- SADRŽAJ DOKUMENTA: ${file.name} ---\n\n${content}\n\n--- KRAJ DOKUMENTA ---\n`;
+      } catch (err) {
+        console.warn('Greška pri čitanju fajla:', file.name, err);
+      }
+    }
+  }
+  
+  // Prikaz preview-a ako ima tekstualnog sadržaja
+  if (uploadedContent) {
+    filePreview.style.display = 'block';
+    filePreview.textContent = uploadedContent.substring(0, 1000) + (uploadedContent.length > 1000 ? '\n\n... (skraćeno za prikaz)' : '');
+  }
+}
+
+function isTextFile(file) {
+  const textTypes = ['text/plain', 'text/html', 'text/xml', 'application/json', 'text/csv', 'text/markdown', 'application/x-tex'];
+  const textExtensions = ['.txt', '.html', '.xml', '.json', '.csv', '.md', '.tex', '.js', '.css', '.py', '.java', '.cpp', '.c', '.h'];
+  const name = file.name.toLowerCase();
+  return textTypes.includes(file.type) || textExtensions.some(ext => name.endsWith(ext));
+}
+
+function readFileAsText(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target.result);
+    reader.onerror = (e) => reject(e);
+    reader.readAsText(file);
+  });
+}
+
+function renderFileList() {
+  fileList.innerHTML = uploadedFiles.map((file, idx) => `
+    <div class="file-item">
+      <span>${getFileIcon(file)}</span>
+      <span>${file.name}</span>
+      <span style="color:rgba(15,15,20,.4);font-size:10px">(${(file.size/1024).toFixed(1)} KB)</span>
+      <button onclick="removeFile(${idx})" title="Ukloni">×</button>
+    </div>
+  `).join('');
+}
+
+function getFileIcon(file) {
+  const name = file.name.toLowerCase();
+  if (name.endsWith('.pdf')) return '📄';
+  if (name.match(/\.docx?$/)) return '📝';
+  if (name.match(/\.xlsx?$/)) return '📊';
+  if (name.match(/\.pptx?$/)) return '📽️';
+  if (name.endsWith('.txt') || name.endsWith('.md')) return '📃';
+  return '📎';
+}
+
+function removeFile(idx) {
+  uploadedFiles.splice(idx, 1);
+  // Ponovo sastavi sadržaj
+  uploadedContent = '';
+  renderFileList();
+  
+  // Ponovo pročitaj preostale fajlove
+  Promise.all(uploadedFiles.filter(isTextFile).map(async (file) => {
+    const content = await readFileAsText(file);
+    return `\n\n--- SADRŽAJ DOKUMENTA: ${file.name} ---\n\n${content}\n\n--- KRAJ DOKUMENTA ---\n`;
+  })).then(contents => {
+    uploadedContent = contents.join('');
+    if (uploadedContent) {
+      filePreview.style.display = 'block';
+      filePreview.textContent = uploadedContent.substring(0, 1000) + (uploadedContent.length > 1000 ? '\n\n... (skraćeno za prikaz)' : '');
+    } else {
+      filePreview.style.display = 'none';
+    }
+  });
+}
 
 // ===== LOADING FACTS =====
 const FACTS = [
@@ -782,68 +916,67 @@ async function generatePriprema() {
   const tezina = document.getElementById('tezina').value;
   const napomene = document.getElementById('napomene').value.trim();
 
-  // apiKey nije obavezan ako je postavljen u .env
   if (!predmet) return showStatus('error', 'Unesite naziv predmeta!');
   if (!tema) return showStatus('error', 'Unesite nastavnu jedinicu (temu)!');
   if (!razred) return showStatus('error', 'Unesite razred!');
-  if (!tema) return showStatus('error', 'Unesite temu testa!');
 
   setLoading(true);
   showLoading();
   document.getElementById('pdfSection').classList.remove('visible');
 
+  // NOVI STREŽNJI SYSTEM PROMPT - STROGO 2 STRANICE
   const systemPrompt = `Ti si LaTeX ekspert koji generiše testove znanja striktno na 2 stranice A4.
 
-APSOLUTNA PRAVILA — NIJEDNO SE NE SMIJE PREKRŠITI:
+KRITIČNA OGRANIČENJA - MORAŠ POŠTOVATI BEZ IZUZETKA:
 
-=== STRANICE ===
-- Test MORA biti TAČNO 2 stranice A4 — bez izuzetka
+=== STRANICE I STRUKTURA ===
+- Test MORA biti TAČNO 2 stranice A4 - nema izuzetaka
 - Stranica 1: zadaci 1-6 unutar \begin{multicols}{2}...\end{multicols}
-- \newpage između stranica — JEDINI newpage u dokumentu
+- Jedini \newpage između stranica 1 i 2
 - Stranica 2: zadaci 7-10 + tabela bodovanja unutar multicols{2}
-- NEMA bonus zadatka — uklonjen je iz strukture
-- ZABRANJENO: dodavati \newpage osim između str.1 i str.2
+- NEMA bonus zadatka (zadatak 11)
+- NEMA dodatnih \newpage nigdje osim između stranica
 
-=== KOMPAKTNOST (KRITIČNO) ===
-- Font: \small ili \footnotesize za tekst pitanja — OBAVEZNO
-- vspace za odgovore: MAKSIMALNO 1.5cm — nikad više
-- itemsep: 0.3em — nikad više
-- parskip: 0.1em — nikad više  
-- Pitanja pisati KRATKO i SAŽETO — max 1 red po pitanju
-- Ako pitanje ne stane u 1 red — skrati ga na pola
-- \setlength{\parskip}{0.1em} i \setlength{\itemsep}{0pt} na početku multicols
+=== TIPOGRAFIJA I PROSTOR ===
+- Font za sva pitanja: \\small ili \\footnotesize - OBAVEZNO
+- vspace za odgovore: MAKSIMALNO 1.5cm, preferirano 1.3cm
+- itemsep: 0.3em - nikad više
+- parskip: 0.1em - nikad više
+- Pitanja pisati KRATKO i SAŽETO - max 1 red po pitanju
+- Ako pitanje ne stane u 1 red - skrati ga drastično
+- Koristi horizontalni prostor optimalno
 
-=== STRUKTURA ZADATAKA ===
-- Zad. 1: Višestruki izbor — 5 pitanja, odgovori a)b)c) ili a)b)c)d) u ISTOM redu
-- Zad. 2: Tačno/Netačno — 5 kratkih tvrdnji, T/N na kraju reda
-- Zad. 3: Dopuni rečenice — 5 kratkih rečenica sa \linija
-- Zad. 4: Poveži pojmove — tabela 5×2, kompaktna
-- Zad. 5: Kratki odgovori — 3 pitanja, vspace 1.3cm svaki
-- Zad. 6: Nabrajanje — 2 podzadatka, a)b)c) linija u istom redu
+=== STRUKTURA ZADATAKA (FIKSNA) ===
+- Zad. 1: Višestruki izbor - 5 pitanja, odgovori a)b)c)d) u ISTOM redu
+- Zad. 2: Tačno/Netačno - 5 tvrdnji, T/N na kraju reda
+- Zad. 3: Dopuni rečenice - 5 kratkih rečenica sa \\linija
+- Zad. 4: Poveži pojmove - kompaktna tabela 5×2
+- Zad. 5: Kratki odgovori - 3 pitanja, vspace 1.3cm
+- Zad. 6: Nabrajanje - 2 podzadatka, a)b)c) u istom redu
 - Zad. 7: 3 esejska pitanja, vspace 1.5cm svaki
-- Zad. 8: 3 esejska pitanja, vspace 1.5cm svaki
+- Zad. 8: 3 esejska pitanja, vspace 1.5cm svaki  
 - Zad. 9: 2 podzadatka (sonde + sigurnost), vspace 1.3cm
 - Zad. 10: 4 kratka pitanja, vspace 1.3cm svaki
-- Tabela bodovanja: kompaktna, horizontalna, na dnu str.2
-- NEMA zadatka 11 — bonus je uklonjen
+- Tabela bodovanja: horizontalna, kompaktna, na dnu str.2
 
-=== SADRŽAJ ===
-- Pitanja STRUČNO TAČNA za zadanu temu
-- Ukupno bodova TOČNO prema zadanom parametru
-- Bodovi po zadacima moraju biti logično raspoređeni da zbroje tačan ukupan broj
-- Težina prema zadanom parametru
-- Jezik: bosanski/hrvatski ijekavica
+=== SADRŽAJ I BODOVI ===
+- Sva pitanja STRUČNO TAČNA za zadanu temu
+- Ukupno bodova TOČNO: ${ukupnoBodova} - raspodjela mora zbrojiti tačan broj
+- Težina: ${tezina}
+- Jezik: bosanski/hrvatski (ijekavica)
 
-=== ODGOVOR ===
-- SAMO čisti LaTeX od \documentclass do \end{document}
-- Bez markdown, bez objašnjenja`;
+=== TEHNIČKA PRAVILA ===
+- SAMO čisti LaTeX od \\documentclass do \\end{document}
+- Bez markdown, bez objašnjenja, bez komentara unutar koda
+- Koristi EXAKTNO iste pakete kao u referentnom dokumentu
+- NEMA izlaska iz 2 stranice - ako prelazi, skrati sadržaj`;
 
-  const userPrompt = `Referentni LaTeX dokument (template testa):
+  const userPrompt = `Referentni LaTeX template (strogo poštuj strukturu):
 
 ${ORIGINAL_DOC}
 
 ---
-GENERIŠI TEST ZA:
+ULAZNI PODACI ZA GENERISANJE:
 - Škola: ${skola}
 - Predmet: ${predmet}
 - Tema testa: ${tema}
@@ -851,19 +984,20 @@ GENERIŠI TEST ZA:
 - Razred: ${razred}
 - Ukupno bodova: ${ukupnoBodova}
 - Težina: ${tezina}
-${napomene ? `- Napomene: ${napomene}` : ''}
+${napomene ? `- Dodatne napomene: ${napomene}` : ''}
+${uploadedContent ? `- Uploadani dokumenti kao kontekst:\n${uploadedContent.substring(0, 8000)}` : ''}
 
-STRIKTNO UPOZORENJE — KRITIČNO:
-- Test MORA stati na TAČNO 2 stranice A4
-- Koristi \small za sav tekst pitanja
-- vspace MAKSIMALNO 1.5cm — manji ako treba
-- Pitanja pisati KRATKO — skrati ako je predugačko
-- NEMA bonus zadatka (zadatak 11)
-- NEMA dodatnih \newpage osim između stranica
-- Vrati kompletan LaTeX dokument`;
+STROGI ZAHTJEVI:
+1. Test MORA stati na TAČNO 2 stranice A4
+2. Koristi \\small za sav tekst pitanja
+3. vspace MAKSIMALNO 1.5cm (manje ako treba)
+4. Pitanja KRATKO - skrati ako je predugačko
+5. NEMA bonus zadatka
+6. NEMA dodatnih \\newpage osim između stranica
+7. Vrati kompletan LaTeX dokument spreman za kompajliranje`;
 
   try {
-    setLoadingPct(20, 'Slanje upita Mistral AI-ju...');
+    setLoadingPct(20, 'Priprema podataka i analiza dokumenata...');
     const response = await fetch(API_BASE + '/api/mistral', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -871,7 +1005,7 @@ STRIKTNO UPOZORENJE — KRITIČNO:
         ...(apiKey ? {__api_key: apiKey} : {}),
         model: 'mistral-large-latest',
         max_tokens: 16000,
-        temperature: 0.15,
+        temperature: 0.1, // Niža temperatura za strožije poštivanje pravila
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -884,7 +1018,7 @@ STRIKTNO UPOZORENJE — KRITIČNO:
       throw new Error(err.error?.message || `HTTP ${response.status}`);
     }
 
-    setLoadingPct(55, 'AI završio — priprema LaTeX dokumenta...');
+    setLoadingPct(55, 'AI završio — validacija LaTeX strukture...');
     const data = await response.json();
     let latex = data.choices[0].message.content.trim();
 
@@ -896,6 +1030,12 @@ STRIKTNO UPOZORENJE — KRITIČNO:
     if (!latex.includes('\\documentclass')) throw new Error('AI nije vratio validan LaTeX. Pokušaj ponovo.');
     if (!latex.includes('\\end{document}')) latex += '\n\\end{document}';
 
+    // VALIDACIJA: Provjeri da li je unutar 2 stranice (heuristika)
+    const pageBreaks = (latex.match(/\\newpage/g) || []).length;
+    if (pageBreaks > 1) {
+      console.warn('Upozorenje: Detektirano više od 1 \\newpage, možda prelazi 2 stranice');
+    }
+
     generatedLatex = latex;
 
     // Setup download .tex link
@@ -906,7 +1046,7 @@ STRIKTNO UPOZORENJE — KRITIČNO:
     dlTex.download = `priprema_${predmet}_${tema}.tex`.replace(/\s+/g,'_').toLowerCase();
 
     // Now auto-compile
-    setLoadingPct(65, 'Kompajliranje PDF-a na TeXLive.net...');
+    setLoadingPct(65, 'Kompajliranje PDF-a...');
     await compileAndShow(latex, predmet, tema);
 
   } catch(err) {
@@ -966,3 +1106,49 @@ async function compileAndShow(latex, predmet, tema) {
     showStatus('success', '✓ LaTeX generisan! Klikni Otvori u Overleaf za PDF.');
   }, 600);
 }
+
+function showPDF(blob, filenameBase, predmet, tema) {
+  const url = URL.createObjectURL(blob);
+  const frame = document.getElementById('pdfFrame');
+  const dlPdf = document.getElementById('downloadPdfBtn');
+  const openPdf = document.getElementById('openPdfBtn');
+  const section = document.getElementById('pdfSection');
+  const filename = `test_${filenameBase}.pdf`;
+  
+  frame.src = url;
+  dlPdf.href = url;
+  dlPdf.download = filename;
+  openPdf.href = url;
+  
+  document.getElementById('pdfFilename').textContent = filename;
+  document.getElementById('fallbackBox').style.display = 'none';
+  document.getElementById('pdfWrap').style.display = 'block';
+  
+  section.classList.add('visible');
+  hideLoading();
+  setLoading(false);
+  showStatus('success', `✓ Test generisan: ${predmet} — ${tema}`);
+}
+
+function showFallbackUI(filenameBase, predmet, tema) {
+  const section = document.getElementById('pdfSection');
+  const fallback = document.getElementById('fallbackBox');
+  const pdfWrap = document.getElementById('pdfWrap');
+  const dlTex = document.getElementById('downloadTex');
+  
+  fallback.style.display = 'block';
+  pdfWrap.style.display = 'none';
+  dlTex.style.display = 'inline-flex';
+  
+  section.classList.add('visible');
+}
+
+function openOverleaf() {
+  if (!generatedLatex) return;
+  const encoded = encodeURIComponent(generatedLatex);
+  const url = `https://www.overleaf.com/docs?snip_uri=data:text/plain;charset=utf-8,${encoded}`;
+  window.open(url, '_blank');
+}
+</script>
+</body>
+</html>

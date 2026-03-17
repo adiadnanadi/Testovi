@@ -153,12 +153,73 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
   animation:factfade 4s ease-in-out infinite}
 @keyframes factfade{0%,100%{opacity:.4}50%{opacity:1}}
 
-.pdf-section{margin-top:40px;display:none}
-.pdf-section.visible{display:block;animation:cardrise .6s ease forwards}
-.pdf-header{display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:16px;flex-wrap:wrap;gap:12px}
-.pdf-title{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--paper);font-weight:700}
-.pdf-actions{display:flex;gap:10px;flex-wrap:wrap}
+/* =============================================
+   PDF SECTION — FULLSCREEN WITH TOP BANNER
+   ============================================= */
+.pdf-section{
+  /* Stretch full width beyond .page-wrap */
+  position:relative;
+  margin-left:calc(-50vw + 50%);
+  margin-right:calc(-50vw + 50%);
+  width:100vw;
+  margin-top:40px;
+  display:none;
+  flex-direction:column;
+  /* Fill remaining viewport height */
+  height:calc(100vh - 80px);
+  min-height:600px;
+}
+.pdf-section.visible{
+  display:flex;
+  animation:cardrise .6s ease forwards;
+}
+
+/* ── top banner: predmet + tema ── */
+.pdf-banner{
+  background:linear-gradient(90deg, var(--blue) 0%, var(--blue-mid) 60%, rgba(200,146,26,.25) 100%);
+  padding:14px 28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:10px;
+  flex-shrink:0;
+  border-bottom:2px solid var(--gold);
+}
+.pdf-banner-left{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+.pdf-banner-icon{
+  font-size:22px;
+  opacity:.85;
+}
+.pdf-banner-info{}
+.pdf-banner-label{
+  font-family:'DM Mono',monospace;
+  font-size:9px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:rgba(241,196,78,.7);
+  margin-bottom:3px;
+}
+.pdf-banner-title{
+  font-family:'Playfair Display',serif;
+  font-size:1.15rem;
+  font-weight:700;
+  color:var(--paper);
+  line-height:1.2;
+}
+.pdf-banner-title em{
+  color:var(--gold-light);
+  font-style:normal;
+}
+.pdf-banner-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
 
 .btn-dl{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;
   letter-spacing:1px;cursor:pointer;border:1.5px solid;border-radius:3px;
@@ -166,15 +227,37 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
   transition:all .2s;text-decoration:none}
 .btn-dl-green{background:var(--green);color:#fff;border-color:var(--green)}
 .btn-dl-green:hover{background:#145530;transform:translateY(-1px)}
-.btn-dl-outline{background:transparent;color:var(--paper);border-color:rgba(245,240,232,.3)}
-.btn-dl-outline:hover{background:rgba(255,255,255,.08)}
+.btn-dl-outline{background:transparent;color:var(--paper);border-color:rgba(245,240,232,.4)}
+.btn-dl-outline:hover{background:rgba(255,255,255,.1)}
 
-.pdf-wrap{background:#404040;border-radius:6px;overflow:hidden;
-  box-shadow:0 8px 40px rgba(0,0,0,.5)}
-.pdf-topbar{background:#2d2d2d;padding:10px 16px;display:flex;align-items:center;gap:8px}
+/* ── fake OS chrome bar ── */
+.pdf-topbar{
+  background:#2d2d2d;
+  padding:10px 16px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-shrink:0;
+}
 .pdf-dot{width:11px;height:11px;border-radius:50%}
 .pdf-filename{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.35);margin-left:8px}
-#pdfFrame{width:100%;height:760px;border:none;display:block;background:#525659;min-height:400px}
+
+/* ── iframe fills ALL remaining space ── */
+.pdf-wrap{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  background:#404040;
+  overflow:hidden;
+}
+#pdfFrame{
+  flex:1;
+  width:100%;
+  border:none;
+  display:block;
+  background:#525659;
+  min-height:0; /* important: lets flex shrink properly */
+}
 
 .ornament{text-align:center;color:rgba(200,146,26,.3);font-size:24px;
   letter-spacing:10px;margin:36px 0 28px;user-select:none;
@@ -182,7 +265,7 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
 @keyframes ornamentpulse{0%,100%{opacity:.3}50%{opacity:.7}}
 
 .fallback-box{display:none;background:var(--cream);border:2px dashed var(--border);
-  border-radius:6px;padding:32px;text-align:center;margin-top:8px}
+  border-radius:6px;padding:32px;text-align:center;margin:20px 24px}
 .fallback-box h3{font-family:'Playfair Display',serif;color:var(--blue);font-size:1.3rem;margin-bottom:12px}
 .fallback-box p{font-family:'Lora',serif;font-size:14px;color:var(--ink);line-height:1.7;margin-bottom:20px}
 .fallback-steps{list-style:none;text-align:left;display:inline-block;margin-bottom:24px}
@@ -199,27 +282,27 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:rgba(255,255,255,.03)}
 ::-webkit-scrollbar-thumb{background:rgba(200,146,26,.3);border-radius:3px}
+
 @media(max-width:640px){
   .card-inner{padding:20px 16px}
   .field-group,.field-group.triple{grid-template-columns:1fr}
   header{padding:36px 0 28px}
   header h1{font-size:2.2rem}
   .page-wrap{padding:20px 14px 60px}
-  #pdfFrame{height:calc(100vw * 1.41)}
-  .pdf-title{font-size:1.1rem}
-  .pdf-actions{width:100%;justify-content:stretch}
+  .pdf-section{height:calc(100vh - 60px)}
+  .pdf-banner{padding:10px 14px}
+  .pdf-banner-title{font-size:1rem}
+  .pdf-banner-right{width:100%;justify-content:stretch}
   .btn-dl{flex:1;justify-content:center;font-size:11px;padding:10px 10px}
-  .pdf-wrap{border-radius:4px}
   .loading-orb{width:90px;height:90px;margin-bottom:28px}
   .loading-title{font-size:1.3rem}
   .loading-facts{max-width:280px}
   .loading-progress{width:220px}
   .btn-generate{font-size:16px;padding:16px 20px}
-  .fallback-box{padding:20px}
+  .fallback-box{padding:20px;margin:16px}
   .fallback-steps li{font-size:11px}
 }
 @media(max-width:400px){
-  #pdfFrame{height:calc(100vw * 1.5)}
   header h1{font-size:1.9rem}
 }
 </style>
@@ -330,43 +413,58 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
       </div>
     </div>
   </div>
+</div>
 
-  <div class="pdf-section" id="pdfSection">
-    <div class="ornament">✦ ✦ ✦</div>
-    <div class="pdf-header">
-      <div class="pdf-title">Test — PDF</div>
-      <div class="pdf-actions">
-        <a class="btn-dl btn-dl-outline" id="openPdfBtn" href="#" target="_blank" style="display:none">↗ Otvori PDF</a>
-        <a class="btn-dl btn-dl-green" id="downloadPdfBtn" href="#" download="test.pdf">⬇ Skini PDF</a>
+<!-- PDF SECTION — outside .page-wrap so it can go full-width/full-height -->
+<div class="pdf-section" id="pdfSection">
+
+  <!-- ── BANNER: predmet + tema ── -->
+  <div class="pdf-banner" id="pdfBanner">
+    <div class="pdf-banner-left">
+      <div class="pdf-banner-icon">📄</div>
+      <div class="pdf-banner-info">
+        <div class="pdf-banner-label">Generisani test</div>
+        <div class="pdf-banner-title" id="pdfBannerTitle">
+          Test — <em id="pdfBannerPredmet">—</em> / <em id="pdfBannerTema">—</em>
+        </div>
       </div>
     </div>
-    <div class="fallback-box" id="fallbackBox">
-      <h3>📄 Test je generisan!</h3>
-      <p>Online kompajler nije dostupan iz browsera (CORS ograničenje).<br>
-      Otvori direktno u Overleaf — besplatno, bez instalacije.</p>
-      <ul class="fallback-steps">
-        <li><span>1</span> Klikni dugme ispod</li>
-        <li><span>2</span> Overleaf će otvoriti tvoj test</li>
-        <li><span>3</span> Klikni Recompile → Download PDF</li>
-      </ul>
-      <br>
-      <button class="btn-overleaf" onclick="openOverleaf()">⚡ Otvori direktno u Overleaf</button>
-    </div>
-    <div class="pdf-wrap" id="pdfWrap">
-      <div class="pdf-topbar">
-        <div class="pdf-dot" style="background:#ff5f57"></div>
-        <div class="pdf-dot" style="background:#febc2e"></div>
-        <div class="pdf-dot" style="background:#28c840"></div>
-        <span class="pdf-filename" id="pdfFilename">test.pdf</span>
-      </div>
-      <iframe id="pdfFrame" title="PDF Preview"></iframe>
+    <div class="pdf-banner-right">
+      <a class="btn-dl btn-dl-outline" id="openPdfBtn" href="#" target="_blank" style="display:none">↗ Otvori</a>
+      <a class="btn-dl btn-dl-green" id="downloadPdfBtn" href="#" download="test.pdf">⬇ Skini PDF</a>
     </div>
   </div>
+
+  <!-- Fallback (Overleaf) -->
+  <div class="fallback-box" id="fallbackBox">
+    <h3>📄 Test je generisan!</h3>
+    <p>Online kompajler nije dostupan iz browsera (CORS ograničenje).<br>
+    Otvori direktno u Overleaf — besplatno, bez instalacije.</p>
+    <ul class="fallback-steps">
+      <li><span>1</span> Klikni dugme ispod</li>
+      <li><span>2</span> Overleaf će otvoriti tvoj test</li>
+      <li><span>3</span> Klikni Recompile → Download PDF</li>
+    </ul>
+    <br>
+    <button class="btn-overleaf" onclick="openOverleaf()">⚡ Otvori direktno u Overleaf</button>
+  </div>
+
+  <!-- PDF viewer -->
+  <div class="pdf-wrap" id="pdfWrap">
+    <div class="pdf-topbar">
+      <div class="pdf-dot" style="background:#ff5f57"></div>
+      <div class="pdf-dot" style="background:#febc2e"></div>
+      <div class="pdf-dot" style="background:#28c840"></div>
+      <span class="pdf-filename" id="pdfFilename">test.pdf</span>
+    </div>
+    <iframe id="pdfFrame" title="PDF Preview"></iframe>
+  </div>
+
 </div>
 
 <script>
 const WORKER_URL = '';
-const API_BASE =WORKER_URL || '';
+const API_BASE = WORKER_URL || '';
 
 (function(){
   const container = document.getElementById('particles');
@@ -434,7 +532,6 @@ function setLoadingPct(pct,msg){
   document.getElementById('loadingBar').style.width=pct+'%';
   if(msg)document.getElementById('loadingStep').textContent=msg;
 }
-
 function showLoading(){
   document.getElementById('loadingOverlay').classList.add('active');
   startLoadingSteps();
@@ -445,7 +542,6 @@ function hideLoading(){
   document.getElementById('loadingStep').textContent='Gotovo!';
   setTimeout(()=>document.getElementById('loadingOverlay').classList.remove('active'),600);
 }
-
 function showStatus(type,msg){
   const bar=document.getElementById('statusBar');
   bar.className='status-bar '+type;
@@ -456,6 +552,12 @@ function setLoading(on){
   btn.disabled=on;
   document.getElementById('btnSpinner').style.display=on?'block':'none';
   document.getElementById('btnText').textContent=on?'Generisanje...':'✦ Generiši i Kompajliraj Test';
+}
+
+// Update banner with predmet + tema
+function updateBanner(predmet, tema){
+  document.getElementById('pdfBannerPredmet').textContent = predmet || '—';
+  document.getElementById('pdfBannerTema').textContent = tema || '—';
 }
 
 const ORIGINAL_DOC = `\\documentclass[a4paper,10pt]{article}
@@ -746,7 +848,8 @@ a) \\linija\\\\ b) \\linija\\\\ c) \\linija
 let generatedLatex = '';
 
 async function generateTest() {
-  const _akField = document.getElementById('apiKey'); const apiKey = _akField ? _akField.value.trim() : '';
+  const _akField = document.getElementById('apiKey');
+  const apiKey = _akField ? _akField.value.trim() : '';
   const predmet = document.getElementById('predmet').value.trim();
   const tema = document.getElementById('tema').value.trim();
   const nastavnik = document.getElementById('nastavnik').value.trim();
@@ -763,6 +866,9 @@ async function generateTest() {
   setLoading(true);
   showLoading();
   document.getElementById('pdfSection').classList.remove('visible');
+
+  // Update banner immediately with entered data
+  updateBanner(predmet, tema);
 
   const systemPrompt = `Ti si LaTeX ekspert koji generiše testove znanja. Generiši test koji POTPUNO ISPUNAVA obje stranice A4 papira — bez ikakvog praznog prostora na dnu.
 
@@ -920,26 +1026,32 @@ async function compileAndShow(latex, predmet, tema) {
 function showPDF(blob, filenameBase, predmet, tema) {
   const pdfUrl = URL.createObjectURL(blob);
   const filename = `test_${filenameBase}.pdf`;
-  
+
   document.getElementById('pdfFilename').textContent = filename;
-  
+
   const iframe = document.getElementById('pdfFrame');
   iframe.src = pdfUrl;
-  
+
   const dlPdf = document.getElementById('downloadPdfBtn');
   dlPdf.href = pdfUrl;
   dlPdf.download = filename;
-  
+
   const openPdf = document.getElementById('openPdfBtn');
   openPdf.href = pdfUrl;
   openPdf.style.display = 'inline-flex';
-  
+
   document.getElementById('fallbackBox').style.display = 'none';
-  document.getElementById('pdfWrap').style.display = 'block';
-  
+  document.getElementById('pdfWrap').style.display = 'flex';
+
   hideLoading();
   setLoading(false);
   document.getElementById('pdfSection').classList.add('visible');
+
+  // Scroll smoothly to PDF section
+  setTimeout(() => {
+    document.getElementById('pdfSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 300);
+
   showStatus('success', '✓ Test uspješno generisan i kompajliran!');
 }
 
@@ -947,22 +1059,23 @@ function showFallbackUI(filenameBase, predmet, tema) {
   document.getElementById('pdfWrap').style.display = 'none';
   document.getElementById('fallbackBox').style.display = 'block';
   document.getElementById('pdfSection').classList.add('visible');
-  
+
   window._overleafData = {
     filename: `test_${filenameBase}.tex`,
     predmet: predmet,
     tema: tema
   };
+
+  setTimeout(() => {
+    document.getElementById('pdfSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 300);
 }
 
 function openOverleaf() {
   if (!generatedLatex) return;
-  
   const encoded = encodeURIComponent(generatedLatex);
   const filename = window._overleafData?.filename || 'test.tex';
-  
   const overleafUrl = `https://www.overleaf.com/docs?snip_uri=data:text/plain;charset=utf-8,${encoded}&filename=${filename}`;
-  
   window.open(overleafUrl, '_blank');
 }
 
@@ -970,7 +1083,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (WORKER_URL) {
     document.getElementById('serverBanner').style.display = 'block';
   }
-  
+
   fetch('/api/key-status')
     .then(r => r.json())
     .then(data => {
@@ -993,4 +1106,3 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
-  

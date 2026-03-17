@@ -870,50 +870,63 @@ async function generateTest() {
   // Update banner immediately with entered data
   updateBanner(predmet, tema);
 
-  const systemPrompt = `Ti si LaTeX ekspert koji generiše testove znanja. Generiši test koji APSOLUTNO POPUNJAVA obje stranice A4 — tekst mora ići do samog dna svake stranice bez ikakvog praznog prostora.
+  const systemPrompt = `Ti si LaTeX ekspert koji generiše testove znanja za srednje škole. Generiši kompletan, kompajlabilan LaTeX dokument koji popunjava tačno 2 stranice A4.
 
-KRITIČNA PRAVILA:
+PREAMBLE — koristi TAČNO ovako:
+\\documentclass[a4paper,10pt]{article}
+\\usepackage[utf8]{inputenc}
+\\usepackage[T1]{fontenc}
+\\usepackage[croatian]{babel}
+\\usepackage[margin=0.9cm, top=1cm, bottom=1cm]{geometry}
+\\usepackage{enumitem}
+\\usepackage{multicol}
+\\usepackage{array}
+\\usepackage{fancyhdr}
+\\usepackage{xcolor}
+\\raggedbottom
+\\pagestyle{fancy}
+\\fancyhf{}
+\\fancyhead[C]{\\small\\textbf{TEST IZ [PREDMET] -- [TEMA]}}
+\\fancyfoot[C]{\\small\\thepage}
+\\renewcommand{\\headrulewidth}{0.4pt}
+\\setlength{\\parindent}{0pt}
+\\setlength{\\parskip}{0.15em}
+\\setlength{\\columnsep}{0.8cm}
+\\newcommand{\\linija}{\\underline{\\hspace{3cm}}}
+\\newcommand{\\kratka}{\\underline{\\hspace{1cm}}}
 
-=== BROJ PITANJA — OBAVEZNO ===
-- Zadatak 1 (Višestruki izbor): TAČNO 8 pitanja (svako pitanje sa 4 ponuđena odgovora a/b/c/d)
-- Zadatak 2 (Tačno/Netačno): TAČNO 8 tvrdnji
-- Zadatak 3 (Dopuni rečenice): TAČNO 7 rečenica sa \\linija
-- Zadatak 4 (Poveži pojmove): tabela sa 6 redova (6 pojmova — 6 objašnjenja)
-- Zadatak 5 (Kratki odgovori): TAČNO 4 pitanja, svako sa \\vspace{2cm}
-- Zadatak 6 (Nabrajanje): 3 podpitanja, svako traži 4 stavke
-- Zadatak 7-10 (Stranica 2): svako podpitanje sa \\vspace{2.5cm}, po 4 podpitanja po zadatku
-
-=== PUNJENJE STRANICA — APSOLUTNO OBAVEZNO ===
-- Stranica 1 MORA biti popunjena DO SAMOG DNA do \\hrule linije
-- Stranica 2 MORA biti popunjena DO SAMOG DNA — zadaci 7-10, pa tabela bodovanja, pa potpis tačno na dnu
-- Ako ima prostora: povećaj \\vspace vrijednosti ili dodaj još pitanja
-- Ako nema prostora: smanji \\vspace ali NIKADA ne izbacuj pitanja
-- Koristiti \\vfill unutar multicols NE radi — koristi eksplicitne \\vspace{Xcm} vrijednosti
-
-=== RAZMACI — PRECIZNE VRIJEDNOSTI ===
-- itemsep između pitanja: 0.55em
-- \\vspace između zadataka: 0.9em
-- Nakon naslova zadatka: \\vspace{0.4em}
-- Esejska pitanja (str. 2): \\vspace{2.5cm} za 2b, \\vspace{3cm} za 3b pitanje
-- Na kraju svake kolone stranice 1: \\vspace{Xcm} da se popuni do dna (procijeni X)
-
-=== STRUKTURA ===
-- Stranica 1: zadaci 1–6 u multicols{2}
+STRUKTURA DOKUMENTA:
+- Zaglavlje: Ime i prezime / Razred / Datum / Bodovi — jedan red pa \\hrule
+- STRANICA 1: \\begin{multicols}{2} — zadaci 1 do 6, zatim \\end{multicols}, pa \\hrule i "Okreni list"
 - \\newpage
-- Stranica 2: zadaci 7–10 u multicols{2}, zatim tabela bodovanja, zatim potpis
-- Font \\small za sva pitanja i odgovore
-- Jezik: bosanski/hrvatski ijekavica
+- STRANICA 2: \\begin{multicols}{2} — zadaci 7 do 10, zatim \\end{multicols}, pa tabela bodovanja, pa potpis
 
-=== FORMAT ODGOVORA ===
-- SAMO LaTeX od \\documentclass do \\end{document}
-- Bez ikakvog teksta, objašnjenja ili markdown blokova`;
+BROJ PITANJA PO ZADATKU (obavezno, ne mijenjaj):
+- Zadatak 1 — Višestruki izbor: 6 pitanja svako a/b/c/d, itemsep=0.45em
+- Zadatak 2 — Tačno/Netačno: 6 tvrdnji, itemsep=0.45em
+- Zadatak 3 — Dopuni rečenice: 5 rečenica sa \\linija, itemsep=0.5em
+- Zadatak 4 — Poveži pojmove: tabela 5 redova (|c|p{2.3cm}|c|p{2.8cm}|)
+- Zadatak 5 — Kratki odgovori: 3 pitanja, svako \\vspace{1.6cm}
+- Zadatak 6 — Nabrajanje: 2 podpitanja po 3 stavke (a/b/c sa \\linija)
+- Zadaci 7 i 8 — svaki 3 podpitanja, svako \\vspace{1.8cm}
+- Zadaci 9 i 10 — svaki 3 podpitanja, svako \\vspace{1.6cm}
 
-  const userPrompt = `Referentni LaTeX dokument (koristi isti preamble i stil):
+RAZMACI:
+- \\vspace{0.7em} između zadataka na str. 1
+- \\vspace{0.6em} između zadataka na str. 2
+- Font \\small za sva pitanja
 
-${ORIGINAL_DOC}
+PRAVILA ZA IZBJEGAVANJE COMPILE GREŠAKA:
+- NE koristiti \\vfill unutar multicols okruženja — pravi grešku
+- NE koristiti \\newcolumn — koristi \\columnbreak samo ako je nužno
+- Sve tabele: tačan broj & separatora u svakom redu
+- Svaki \\begin{X} mora imati \\end{X}
+- \\hspace i \\vspace uvijek sa argumentom u {vitičastim zagradama}
+- Unutar enumerate okruženja NE otvarati novi enumerate bez zatvaranja prethodnog
 
----
-GENERIŠI TEST ZA:
+FORMAT ODGOVORA: SAMO LaTeX kod od \\documentclass do \\end{document}. Apsolutno bez ikakvog teksta prije ili poslije.`;
+
+  const userPrompt = `Generiši test sa ovim podacima:
 - Škola: ${skola}
 - Predmet: ${predmet}
 - Tema: ${tema}
@@ -923,20 +936,11 @@ GENERIŠI TEST ZA:
 - Težina: ${tezina}
 ${napomene ? `- Napomene: ${napomene}` : ''}
 
-OBAVEZNI BROJ PITANJA (ne smanji):
-- Zadatak 1: 8 pitanja višestrukog izbora (a/b/c/d)
-- Zadatak 2: 8 tačno/netačno tvrdnji
-- Zadatak 3: 7 dopuni rečenice
-- Zadatak 4: tabela 6×2 pojam–objašnjenje
-- Zadatak 5: 4 kratka odgovora sa \\vspace{2cm} svako
-- Zadatak 6: 3 nabrajanja po 4 stavke
-- Zadaci 7–10 (str. 2): po 4 podpitanja, \\vspace{2.5cm}–\\vspace{3cm} svako
+Sva pitanja moraju biti konkretno vezana za temu "${tema}" iz predmeta "${predmet}".
+Koristi stručnu terminologiju primjerenu ${razred} razredu.
+Zbir bodova svih zadataka mora biti tačno ${ukupnoBodova}.
+Vrati SAMO kompletan LaTeX dokument bez ikakvog drugog teksta.`;
 
-PUNJENJE DO DNA — KRITIČNO:
-- Na kraju kolona stranice 1 dodaj dovoljno \\vspace{Xcm} da tekst ide do \\hrule
-- Na stranici 2 povećaj \\vspace vrijednosti dok tabela bodovanja ne bude tačno pri dnu
-- Svaka A4 stranica treba izgledati potpuno popunjena kao u štampanom testu
-- Vrati KOMPLETAN LaTeX dokument`;
 
   try {
     setLoadingPct(20, 'Priprema podataka...');

@@ -1,6 +1,3 @@
 flask
 flask-cors
 gunicorn
-PyPDF2
-docx2txt
-python-docx

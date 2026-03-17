@@ -51,7 +51,6 @@ def key_status():
 
 @app.route("/api/extract-text", methods=["POST"])
 def extract_text():
-    """Ekstraktuj tekst iz PDF, DOCX, TXT, MD fajlova."""
     try:
         if 'file' not in request.files:
             return jsonify({"error": "Nema fajla"}), 400
@@ -67,7 +66,6 @@ def extract_text():
         if ext not in supported:
             return jsonify({"error": f"Format .{ext} nije podržan"}), 400
         
-        # Privremeni direktorij
         temp_dir = BASE_DIR / "temp_uploads"
         temp_dir.mkdir(exist_ok=True)
         
@@ -96,11 +94,10 @@ def extract_text():
                     doc = Document(str(file_path))
                     text = "\n\n".join([p.text for p in doc.paragraphs if p.text.strip()])
                     
-            else:  # txt, md
+            else:
                 with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                     text = f.read()
             
-            # Limit
             if len(text) > 50000:
                 text = text[:50000] + "\n\n[...skraćeno...]"
             
@@ -125,17 +122,34 @@ def compile_latex():
     try:
         data = request.get_json()
         latex = data.get("latex", "")
+        
         if not latex:
             return jsonify({"error": "Nema LaTeX sadrzaja"}), 400
 
+        # DEBUG: Sačuvaj LaTeX za provjeru
+        debug_file = BASE_DIR / "debug_last.tex"
+        debug_file.write_text(latex, encoding='utf-8')
+        
+        # Očisti LaTeX od potencijalno problematičnih karaktera
+        # Zamijeni &nbsp; i slične HTML entitete
+        latex = latex.replace('\u00a0', ' ')  # &nbsp;
+        latex = latex.replace('\u200b', '')   # zero-width space
+        latex = latex.replace('\ufeff', '')   # BOM
+        
+        # Provjeri osnovnu strukturu
+        if '\\documentclass' not in latex:
+            return jsonify({"error": "LaTeX ne sadrži \\documentclass"}), 400
+            
+        if '\\end{document}' not in latex:
+            latex += '\n\\end{document}'
+
         boundary = "----FormBoundary7MA4YWxkTrZu0gW"
-        CRLF = "\r\n"
 
         def form_field(name, value):
             return (
-                "--" + boundary + CRLF +
-                'Content-Disposition: form-data; name="' + name + '"' + CRLF + CRLF +
-                value + CRLF
+                "--" + boundary + "\r\n" +
+                f'Content-Disposition: form-data; name="{name}"' + "\r\n\r\n" +
+                value + "\r\n"
             )
 
         body_str = (
@@ -143,7 +157,7 @@ def compile_latex():
             form_field("filename[]", "document.tex") +
             form_field("engine", "pdflatex") +
             form_field("return", "pdf") +
-            "--" + boundary + "--" + CRLF
+            "--" + boundary + "--\r\n"
         )
         body = body_str.encode("utf-8")
 
@@ -151,29 +165,42 @@ def compile_latex():
             "https://texlive.net/cgi-bin/latexcgi",
             data=body,
             headers={
-                "Content-Type": "multipart/form-data; boundary=" + boundary,
+                "Content-Type": f"multipart/form-data; boundary={boundary}",
                 "Content-Length": str(len(body)),
             },
             method="POST"
         )
 
         with urllib.request.urlopen(req, timeout=120) as resp:
-            pdf_bytes = resp.read()
+            response_bytes = resp.read()
             content_type = resp.headers.get("Content-Type", "")
 
+        # DEBUG: Sačuvaj response
+        debug_response = BASE_DIR / "debug_response.txt"
+        debug_response.write_text(f"Content-Type: {content_type}\n\n{response_bytes[:2000].decode('utf-8', errors='replace')}", encoding='utf-8')
+
         if "pdf" in content_type:
-            return Response(pdf_bytes, status=200, mimetype="application/pdf")
+            return Response(response_bytes, status=200, mimetype="application/pdf")
         else:
+            # Vrati grešku kompajlera
+            error_text = response_bytes.decode('utf-8', errors='replace')
             return jsonify({
                 "error": "LaTeX kompajliranje nije uspjelo",
-                "log": pdf_bytes.decode("utf-8", errors="replace")[:500]
+                "log": error_text[:2000]  # Prvih 2000 karaktera loga
             }), 422
 
     except urllib.error.HTTPError as e:
-        err = e.read().decode("utf-8", errors="replace")
-        return jsonify({"error": "TeXLive HTTP greska " + str(e.code), "log": err[:300]}), 502
+        error_body = e.read().decode('utf-8', errors='replace')
+        return jsonify({
+            "error": f"TeXLive HTTP greška {e.code}",
+            "log": error_body[:1000]
+        }), 502
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        import traceback
+        return jsonify({
+            "error": str(e),
+            "traceback": traceback.format_exc()
+        }), 500
 
 
 @app.route("/api/mistral", methods=["POST"])

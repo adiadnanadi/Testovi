@@ -383,7 +383,7 @@ textarea{resize:vertical;min-height:110px;line-height:1.6}
 // ===== KONFIGURACIJA =====
 // Zamijeni ovaj URL sa tvojim Cloudflare Worker URL-om nakon deploya
 // Format: https://ime-workera.tvoje-ime.workers.dev
-const WORKER_URL = 'https://raspy-frost-0d1a.adnansahanic40.workers.dev';  // ← UPIŠI OVDJE SVOJ WORKER URL
+const WORKER_URL = '';  // ← UPIŠI OVDJE SVOJ WORKER URL
 
 // Ako je WORKER_URL prazan, koristi relativni /api/mistral (za lokalni server)
 const API_BASE = WORKER_URL || '';
@@ -494,6 +494,7 @@ const ORIGINAL_DOC = `\\documentclass[a4paper,10pt]{article}
 \\usepackage{fancyhdr}
 \\usepackage{xcolor}
 
+\\raggedbottom
 \\pagestyle{fancy}
 \\fancyhf{}
 \\fancyhead[C]{\\small\\textbf{TEST IZ ELEKTRIČNIH MJERENJA -- Digitalni multimetar}}
@@ -623,11 +624,11 @@ a) Volt \\quad b) Amper \\quad c) Om \\quad d) Herc
 \\begin{enumerate}[label=\\textbf{5.\\arabic*.}, leftmargin=*, itemsep=0.5em]
 \\item Šta je digitalni multimetar? \\textit{(2b)}
 
-\\vspace{2cm}
+\\vspace{1.8cm}
 
 \\item Navedi 3 osnovne električne veličine koje mjeri multimetar. \\textit{(3b)}
 
-\\vspace{2cm}
+\\vspace{1.8cm}
 
 \\item Koja je razlika između DC i AC napona? \\textit{(3b)}
 
@@ -680,15 +681,15 @@ c) \\linija
 \\begin{enumerate}[label=\\textbf{7.\\arabic*.}, leftmargin=*, itemsep=0.6em]
 \\item Kako se multimetar spaja za mjerenje NAPONA? \\textit{(2b)}
 
-\\vspace{2.5cm}
+\\vspace{1.8cm}
 
 \\item Kako se multimetar spaja za mjerenje STRUJE? \\textit{(2b)}
 
-\\vspace{2.5cm}
+\\vspace{1.8cm}
 
 \\item Zašto je potrebno prekinuti krug prije mjerenja struje? \\textit{(2b)}
 
-\\vspace{2.5cm}
+\\vspace{2cm}
 
 \\end{enumerate}
 
@@ -702,15 +703,15 @@ c) \\linija
 \\begin{enumerate}[label=\\textbf{8.\\arabic*.}, leftmargin=*, itemsep=0.6em]
 \\item Zašto se otpor NE smije mjeriti u uključenom krugu? \\textit{(2b)}
 
-\\vspace{2.5cm}
+\\vspace{1.8cm}
 
 \\item Objasni osnovni princip mjerenja otpora multimetrom. \\textit{(2b)}
 
-\\vspace{2.5cm}
+\\vspace{1.8cm}
 
 \\item Šta predstavlja 4-žični (Kelvin) metod mjerenja? \\textit{(2b)}
 
-\\vspace{2.5cm}
+\\vspace{2cm}
 
 \\end{enumerate}
 
@@ -724,7 +725,7 @@ c) \\linija
 \\begin{enumerate}[label=\\textbf{9.\\arabic*.}, leftmargin=*, itemsep=0.6em]
 \\item Gdje se spaja crna, a gdje crvena mjerna sonda? \\textit{(2b)}
 
-\\vspace{2.5cm}
+\\vspace{1.8cm}
 
 \\item Navedi tri sigurnosna pravila pri radu sa multimetrom: \\textit{(3b)}
 
@@ -744,19 +745,19 @@ c) \\linija
 \\begin{enumerate}[label=\\textbf{10.\\arabic*.}, leftmargin=*, itemsep=0.6em]
 \\item Šta je električna struja i koja je njena mjerna jedinica? \\textit{(2b)}
 
-\\vspace{2.5cm}
+\\vspace{1.8cm}
 
 \\item Šta znače oznake V= i V\\textasciitilde{} na multimetru? \\textit{(2b)}
 
-\\vspace{2.5cm}
+\\vspace{1.8cm}
 
 \\item Objasni razliku između tačnosti i preciznosti mjerenja. \\textit{(2b)}
 
-\\vspace{2.5cm}
+\\vspace{1.8cm}
 
 \\item Čemu služi funkcija REL (relative) na multimetru? \\textit{(2b)}
 
-\\vspace{2.5cm}
+\\vspace{2cm}
 
 \\end{enumerate}
 
@@ -826,22 +827,47 @@ async function generatePriprema() {
   const systemPrompt = `Ti si iskusan nastavnik i LaTeX ekspert koji generiše testove znanja.
 Dobijas kompletan LaTeX test kao referencu. Generišeš NOVI test sa novim pitanjima za zadanu temu.
 
-PRAVILA ZA GENERISANJE TESTA (SVA MORAJU BITI ISPUNJENA):
-1. Zadrži IDENTIČNU LaTeX strukturu: documentclass, geometry, multicols, fancyhdr, enumerate, tabular
-2. Test mora stati na TAČNO 2 stranice A4 — ni manje ni više
-3. Zadrži isti layout: multicols{2} na obje stranice, hrule separator, "Okreni list" na kraju prve stranice
-4. Zadrži iste tipove zadataka: višestruki izbor, tačno/netačno, dopuni rečenice, poveži pojmove, kratki odgovori, nabrajanje, esejska pitanja, bonus
-5. Zadrži iste LaTeX komande: \\linija, \\kratka, \\newcommand definicije u preambuli
-6. Prilagodi zaglavlje: naziv testa u \\fancyhead mora odgovarati predmetu i temi
-7. Zaglavlje učenika (Ime, Razred, Datum, Bodovi) ostaje identično po formatu
-8. Tabela bodovanja na kraju mora odgovarati stvarnim bodovima zadataka i biti točna
-9. Ukupan broj bodova mora biti TOČNO onoliko koliko je zadano parametrom
-10. Mijenjaj SAMO: pitanja, odgovore, temu, predmet, nastavnika, školu, razred, bodove
-11. Pitanja moraju biti STRUČNO TAČNA za zadanu temu i predmet
-12. Prilagodi težinu pitanja prema zadanoj težini (lakši/srednji/teži)
-13. Jezik: bosanski/hrvatski ijekavica
-14. Vrati KOMPLETAN LaTeX dokument od \\documentclass do \\end{document}
-15. Bez markdown ograđivanja, bez objašnjenja — samo čisti LaTeX`;
+STRIKTNA PRAVILA — MORA SE POŠTOVATI SVAKO:
+
+=== OGRANIČENJE STRANICA (NAJVAŽNIJE) ===
+- Test MORA stati na TAČNO 2 stranice A4 — apsolutno ne smije biti više
+- Stranica 1: zadaci 1-6 u multicols{2}
+- Stranica 2: zadaci 7-11 + tabela bodovanja u multicols{2}
+- Između stranica MORA biti \\newpage
+- Prostori za odgovore (\\vspace) moraju biti MALI: max 2cm za kratke, max 2.5cm za duge
+- Ako zadatak ima previše teksta — skrati pitanje, ne povećavaj prostor
+- ZABRANJENO: dodavati nove zadatke, povećavati \\vspace, dodavati \\newpage unutar stranice
+
+=== STRUKTURA (IDENTIČNA REFERENTNOM DOKUMENTU) ===
+1. Preambula identična: documentclass[a4paper,10pt], geometry margin=1cm, multicols, fancyhdr
+2. \\newcommand{\\linija} i \\newcommand{\\kratka} moraju biti definirani
+3. Zaglavlje učenika (Ime, Razred, Datum, Bodovi/ukupno) — identičan format
+4. multicols{2} na obje stranice
+5. hrule + "Okreni list" na kraju prve stranice — OBAVEZNO
+6. Zadaci 1-6 na prvoj strani, zadaci 7-11 na drugoj strani
+7. Tabela bodovanja na kraju — mora odgovarati bodovima
+
+=== TIPOVI ZADATAKA (ne mijenjaj tipove, samo pitanja) ===
+- Zad. 1: Višestruki izbor (5 pitanja, a/b/c/d)
+- Zad. 2: Tačno/Netačno (5 tvrdnji)
+- Zad. 3: Dopuni rečenice (6 rečenica sa \\linija)
+- Zad. 4: Poveži pojmove (tabela 5 pojmova + 5 objašnjenja)
+- Zad. 5: Kratki odgovori (3 pitanja, max \\vspace{2cm})
+- Zad. 6: Nabrajanje (2 podzadatka sa a/b/c)
+- Zad. 7-8: Esejska pitanja (3 podzadatka, max \\vspace{2cm})
+- Zad. 9: Sonde/Sigurnost ili tematski ekvivalent
+- Zad. 10: Pojmovi i funkcije (4 podzadatka)
+- Zad. 11: Bonus zadatak (1 pitanje)
+
+=== SADRŽAJ ===
+- Pitanja STRUČNO TAČNA za zadanu temu i predmet
+- Ukupno bodova TOČNO onoliko koliko je zadano
+- Težina pitanja prema zadanoj težini (lakši/srednji/teži)
+- Jezik: bosanski/hrvatski ijekavica
+
+=== FORMAT ODGOVORA ===
+- Vrati SAMO čisti LaTeX od \\documentclass do \\end{document}
+- Bez markdown, bez objašnjenja, bez komentara`;
 
   const userPrompt = `Referentni LaTeX dokument (template testa):
 
@@ -858,7 +884,13 @@ GENERIŠI TEST ZA:
 - Težina: ${tezina}
 ${napomene ? `- Napomene: ${napomene}` : ''}
 
-VAŽNO: Test mora stati na TAČNO 2 stranice A4. Zadrži identičnu LaTeX strukturu. Generiši nova pitanja relevantna za temu. Vrati kompletan LaTeX dokument.`;
+STRIKTNO UPOZORENJE:
+- Test MORA stati na TAČNO 2 stranice A4 — ni jedan red više
+- Prostori za odgovore (vspace) moraju biti identični referentnom dokumentu ili manji
+- Ne dodavaj nova pitanja, ne proširuj zadatke
+- Zadrži identičan broj pitanja i tipova zadataka kao u referenci
+- Ako tema zahtijeva duže formulacije, skrati tekst pitanja da stane
+- Vrati kompletan LaTeX dokument`;
 
   try {
     setLoadingPct(20, 'Slanje upita Mistral AI-ju...');
@@ -916,152 +948,51 @@ VAŽNO: Test mora stati na TAČNO 2 stranice A4. Zadrži identičnu LaTeX strukt
 }
 
 async function compileAndShow(latex, predmet, tema) {
-  const filename = `priprema_${predmet}_${tema}`.replace(/\s+/g,'_').toLowerCase();
+  const filenameBase = predmet && tema
+    ? `${predmet}_${tema}`.replace(/\s+/g,'_').toLowerCase()
+    : 'dokument';
 
-  // --- Pokusaj 1: YtoTech API (ima CORS) ---
+  // Pokusaj 1: Lokalni server proxy /api/compile
   try {
-    setLoadingPct(72, 'Kompajliranje — YtoTech LaTeX API...');
-    const resp = await fetch('https://latex.ytotech.com/builds/sync', {
+    setLoadingPct(72, 'Kompajliranje — server proxy...');
+    const resp = await fetch(API_BASE + '/api/compile', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        compiler: 'pdflatex',
-        resources: [{ main: true, content: latex }]
-      })
+      body: JSON.stringify({ latex })
     });
     if (resp.ok) {
       const ct = resp.headers.get('content-type') || '';
       if (ct.includes('pdf')) {
         const blob = await resp.blob();
-        showPDF(blob, filename, predmet, tema);
+        showPDF(blob, filenameBase, predmet, tema);
         return;
       }
+      const errData = await resp.json().catch(() => ({}));
+      console.warn('Kompajler greska:', errData.log || errData.error);
     }
-  } catch(e1) { console.warn('YtoTech nije dostupan:', e1.message); }
+  } catch(e1) { console.warn('Server proxy nedostupan:', e1.message); }
 
-  // --- Pokusaj 2: TeXLive formData ---
+  // Pokusaj 2: YtoTech direktno
   try {
-    setLoadingPct(82, 'Kompajliranje — TeXLive.net...');
-    const fd = new FormData();
-    fd.append('filecontents[]', latex);
-    fd.append('filename[]', 'document.tex');
-    fd.append('engine', 'pdflatex');
-    fd.append('return', 'pdf');
-    const resp2 = await fetch('https://texlive.net/cgi-bin/latexcgi', {
-      method: 'POST', body: fd
+    setLoadingPct(82, 'Kompajliranje — YtoTech...');
+    const resp2 = await fetch('https://latex.ytotech.com/builds/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ compiler: 'pdflatex', resources: [{ main: true, content: latex }] })
     });
-    if (resp2.ok) {
-      const ct2 = resp2.headers.get('content-type') || '';
-      if (ct2.includes('pdf')) {
-        const blob2 = await resp2.blob();
-        showPDF(blob2, filename, predmet, tema);
-        return;
-      }
+    if (resp2.ok && (resp2.headers.get('content-type')||'').includes('pdf')) {
+      const blob2 = await resp2.blob();
+      showPDF(blob2, filenameBase, predmet, tema);
+      return;
     }
-  } catch(e2) { console.warn('TeXLive CORS blokiran:', e2.message); }
+  } catch(e2) { console.warn('YtoTech nedostupan:', e2.message); }
 
-  // --- Fallback: nema online kompajlera dostupnog ---
-  // Prikazujemo lijepu stranicu sa uputstvima
-  setLoadingPct(100, 'Priprema gotova!');
+  // Fallback: Overleaf
+  setLoadingPct(100, 'Test generisan!');
   setTimeout(() => {
     hideLoading();
     setLoading(false);
-    showFallbackUI(filename, predmet, tema);
-    showStatus('success', `✓ LaTeX test generisan! Skini .tex fajl i kompajliraj u Overleaf.`);
+    showFallbackUI(filenameBase, predmet, tema);
+    showStatus('success', '✓ LaTeX generisan! Klikni Otvori u Overleaf za PDF.');
   }, 600);
 }
-
-function showPDF(blob, filename, predmet, tema) {
-  const pdfUrl = URL.createObjectURL(blob);
-  document.getElementById('pdfFrame').src = pdfUrl;
-  document.getElementById('pdfFilename').textContent = filename + '.pdf';
-  const dlPdf = document.getElementById('downloadPdfBtn');
-  dlPdf.href = pdfUrl;
-  dlPdf.download = filename + '.pdf';
-  dlPdf.style.display = 'inline-flex';
-  // Na mobilnom dodaj i "Otvori PDF" dugme (iframe moze biti problem)
-  const openBtn = document.getElementById('openPdfBtn');
-  openBtn.href = pdfUrl;
-  openBtn.style.display = 'inline-flex';
-
-  setLoadingPct(100, 'Gotovo!');
-  setTimeout(() => {
-    hideLoading();
-    setLoading(false);
-    // Sakrij fallback, pokazi PDF frame
-    document.getElementById('fallbackBox').style.display = 'none';
-    document.getElementById('pdfWrap').style.display = 'block';
-    document.getElementById('pdfSection').classList.add('visible');
-    showStatus('success', `✓ Test generisan! Predmet: ${predmet} — Tema: ${tema}`);
-    document.getElementById('pdfSection').scrollIntoView({behavior:'smooth',block:'start'});
-  }, 700);
-}
-
-function showFallbackUI(filename, predmet, tema) {
-  document.getElementById('pdfWrap').style.display = 'none';
-  document.getElementById('downloadPdfBtn').style.display = 'none';
-  const fb = document.getElementById('fallbackBox');
-  fb.style.display = 'block';
-  document.getElementById('pdfSection').classList.add('visible');
-  document.getElementById('pdfSection').scrollIntoView({behavior:'smooth',block:'start'});
-}
-
-function openOverleaf() {
-  if (generatedLatex) _overleafPost(generatedLatex);
-}
-
-function _overleafPost(latex) {
-  const form = document.createElement('form');
-  form.method='POST'; form.action='https://www.overleaf.com/docs'; form.target='_blank';
-  const inp = document.createElement('input');
-  inp.type='hidden'; inp.name='snip'; inp.value=latex; form.appendChild(inp);
-  const nm = document.createElement('input');
-  nm.type='hidden'; nm.name='snip_name'; nm.value='priprema.tex'; form.appendChild(nm);
-  document.body.appendChild(form); form.submit(); document.body.removeChild(form);
-}
-
-// ===== SESSION STORAGE =====
-// ===== ENV KEY STATUS =====
-async function checkEnvKey() {
-  try {
-    const r = await fetch(API_BASE + '/api/key-status');
-    if (!r.ok) throw new Error('no server');
-    const d = await r.json();
-    const box = document.getElementById('envStatus');
-    const field = document.getElementById('apiKeyField');
-    if (d.configured) {
-      box.style.display = 'block';
-      box.style.background = 'rgba(26,107,58,.1)';
-      box.style.border = '1px solid rgba(26,107,58,.2)';
-      box.style.color = 'var(--green)';
-      box.innerHTML = '✓ API ključ učitan iz .env &nbsp;(' + d.preview + ')';
-      field.style.display = 'none';
-    } else {
-      box.style.display = 'block';
-      box.style.background = 'rgba(176,48,48,.08)';
-      box.style.border = '1px solid rgba(176,48,48,.2)';
-      box.style.color = 'var(--red)';
-      box.innerHTML = '✗ .env fajl nema API ključa — upiši ga ispod ili u .env';
-      field.style.display = 'block';
-      const saved = localStorage.getItem('mistral_api_key');
-      if (saved) document.getElementById('apiKey').value = saved;
-    }
-  } catch(e) {
-    // Server nije aktivan - pokaži fallback polje
-    const field = document.getElementById('apiKeyField');
-    field.style.display = 'block';
-    const saved = localStorage.getItem('mistral_api_key');
-    if (saved) document.getElementById('apiKey').value = saved;
-  }
-}
-
-document.addEventListener('DOMContentLoaded', checkEnvKey);
-
-// Fallback localStorage
-const _akEl = document.getElementById('apiKey');
-if (_akEl) _akEl.addEventListener('input', function(){
-  localStorage.setItem('mistral_api_key', this.value);
-});
-</script>
-</body>
-</html>

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-Generator Nastavnih Priprema - Flask Server
-Za Render deployment ili lokalno pokretanje.
+Generator Testova - Flask Server
 """
 
 import os
@@ -13,19 +12,15 @@ from flask import Flask, send_file, request, jsonify
 
 app = Flask(__name__)
 
-BASE_DIR        = Path(__file__).parent
-
-HTML_TESTOVI    = BASE_DIR / "generator-testova.html"
-MISTRAL_URL     = "https://api.mistral.ai/v1/chat/completions"
+BASE_DIR    = Path(__file__).parent
+HTML_FILE   = BASE_DIR / "generator-testova.html"
+MISTRAL_URL = "https://api.mistral.ai/v1/chat/completions"
 
 
 def get_api_key():
-    """Uzmi API ključ iz env varijable (Render) ili .env fajla (lokalno)."""
-    # 1. Env varijabla (Render, ili export u terminalu)
     key = os.environ.get("MISTRAL_API_KEY", "").strip()
     if key:
         return key
-    # 2. .env fajl (lokalno)
     env_file = BASE_DIR / ".env"
     if env_file.exists():
         for line in env_file.read_text(encoding="utf-8").splitlines():
@@ -35,21 +30,13 @@ def get_api_key():
     return ""
 
 
-# ── Serve HTML ───────────────────────────────────────────────────────────────
 @app.route("/")
 @app.route("/index.html")
-@app.route("/priprema-generator.html")
+@app.route("/generator-testova.html")
 def index():
     return send_file(HTML_FILE)
 
 
-@app.route("/generator-testova.html")
-@app.route("/testovi")
-def testovi():
-    return send_file(HTML_TESTOVI)
-
-
-# ── Key status ───────────────────────────────────────────────────────────────
 @app.route("/api/key-status")
 def key_status():
     key = get_api_key()
@@ -61,7 +48,6 @@ def key_status():
     return jsonify({"configured": bool(key), "preview": preview})
 
 
-# ── Mistral proxy ─────────────────────────────────────────────────────────────
 @app.route("/api/compile", methods=["POST"])
 def compile_latex():
     try:
@@ -70,18 +56,16 @@ def compile_latex():
         if not latex:
             return jsonify({"error": "Nema LaTeX sadrzaja"}), 400
 
-        # Koristimo FormData za slanje na TeXLive
-        from urllib.parse import quote
         boundary = "----FormBoundary7MA4YWxkTrZu0gW"
         CRLF = "\r\n"
-        
+
         def form_field(name, value):
             return (
                 "--" + boundary + CRLF +
                 "Content-Disposition: form-data; name=\"" + name + "\"" + CRLF + CRLF +
                 value + CRLF
             )
-        
+
         body_str = (
             form_field("filecontents[]", latex) +
             form_field("filename[]", "document.tex") +
@@ -138,7 +122,7 @@ def mistral_proxy():
             data.pop("__api_key", None)
 
         if not api_key:
-            return jsonify({"error": {"message": "API ključ nije postavljen."}}), 400
+            return jsonify({"error": {"message": "API kljuc nije postavljen."}}), 400
 
         payload = json.dumps(data).encode("utf-8")
         req = urllib.request.Request(
@@ -170,11 +154,7 @@ def mistral_proxy():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
-    print(f"\n  Server: http://localhost:{port}")
     key = get_api_key()
-    if key:
-        print(f"  Ključ:  {key[:8]}...{key[-4:]}  ✓")
-    else:
-        print("  Ključ:  NIJE POSTAVLJEN — dodaj MISTRAL_API_KEY u .env ili env varijable")
-    print()
+    print(f"\n  Generator Testova: http://localhost:{port}")
+    print(f"  Kljuc: {key[:8] + '...' + key[-4:] if key else 'NIJE POSTAVLJEN'}\n")
     app.run(host="0.0.0.0", port=port, debug=False)

@@ -487,7 +487,7 @@ const ORIGINAL_DOC = `\\documentclass[a4paper,10pt]{article}
 \\usepackage[utf8]{inputenc}
 \\usepackage[T1]{fontenc}
 \\usepackage[croatian]{babel}
-\\usepackage[margin=1cm, top=1.2cm, bottom=1.2cm]{geometry}
+\\usepackage[margin=0.9cm, top=1cm, bottom=1cm]{geometry}
 \\usepackage{enumitem}
 \\usepackage{multicol}
 \\usepackage{array}
@@ -498,305 +498,273 @@ const ORIGINAL_DOC = `\\documentclass[a4paper,10pt]{article}
 \\pagestyle{fancy}
 \\fancyhf{}
 \\fancyhead[C]{\\small\\textbf{TEST IZ ELEKTRIČNIH MJERENJA -- Digitalni multimetar}}
-\\fancyfoot[C]{\\thepage}
-\\renewcommand{\\headrulewidth}{0.5pt}
+\\fancyfoot[C]{\\small\\thepage}
+\\renewcommand{\\headrulewidth}{0.4pt}
 
 \\setlength{\\parindent}{0pt}
-\\setlength{\\parskip}{0.3em}
-\\setlength{\\columnsep}{1cm}
+\\setlength{\\parskip}{0.2em}
+\\setlength{\\columnsep}{0.8cm}
+\\setlength{\\itemsep}{0pt}
 
-\\newcommand{\\linija}{\\underline{\\hspace{3.5cm}}}
-\\newcommand{\\kratka}{\\underline{\\hspace{1.2cm}}}
+\\newcommand{\\linija}{\\underline{\\hspace{3cm}}}
+\\newcommand{\\kratka}{\\underline{\\hspace{1cm}}}
 
 \\begin{document}
 
-% ==================== STRANA 1 (PREDNJA) ====================
-\\begin{center}
-\\textbf{Ime i prezime:} \\underline{\\hspace{5cm}} \\quad \\textbf{Razred:} \\underline{\\hspace{2cm}} \\quad \\textbf{Datum:} \\underline{\\hspace{2.5cm}} \\quad \\textbf{Bodovi:} \\underline{\\hspace{1.2cm}}/50
-\\end{center}
-\\vspace{-0.2em}
+% ==================== STRANA 1 ====================
+{\\small\\textbf{Ime i prezime:} \\underline{\\hspace{4.5cm}} \\textbf{Razred:} \\underline{\\hspace{1.5cm}} \\textbf{Datum:} \\underline{\\hspace{2cm}} \\textbf{Bodovi:} \\underline{\\hspace{1cm}}/50}
+\\vspace{0.2em}
 \\hrule
-\\vspace{0.6em}
+\\vspace{0.3em}
 
 \\begin{multicols}{2}
+\\setlength{\\parskip}{0.1em}
 
-% ----- ZADATAK 1 -----
-\\textbf{1. VIŠESTRUKI IZBOR} \\hfill \\textit{(5 bodova)}
+% ----- ZADATAK 1: VIŠESTRUKI IZBOR (5b) -----
+{\\small\\textbf{1. VIŠESTRUKI IZBOR} \\hfill \\textit{(5 bodova)}}
+\\vspace{0.2em}
 
-\\vspace{0.6em}
-
-\\begin{enumerate}[label=\\textbf{1.\\arabic*.}, leftmargin=*, itemsep=1em]
-\\item Mjerna jedinica za električni napon je:\\\\[0.3em]
+\\begin{enumerate}[label=\\textbf{\\small 1.\\arabic*.}, leftmargin=*, itemsep=0.3em, topsep=0.2em]
+{\\small
+\\item Mjerna jedinica za električni napon je:
 a) Amper \\quad b) Om \\quad c) Volt \\quad d) Vat
 
-\\item Oznaka \\textbf{V\\textasciitilde} na multimetru označava:\\\\[0.3em]
+\\item Oznaka \\textbf{V\\textasciitilde} na multimetru označava:
 a) DC napon \\quad b) AC napon \\quad c) Otpor \\quad d) Frekvenciju
 
-\\item Mjerenje napona -- multimetar se spaja:\\\\[0.3em]
+\\item Multimetar za mjerenje napona se spaja:
 a) Serijski \\quad b) Paralelno \\quad c) Umjesto potrošača
 
-\\item \\textbf{OL} na displeju multimetra znači:\\\\[0.3em]
-a) Niska baterija \\quad b) Prekoračenje opsega\\\\
-c) Greška sonde \\quad d) Isključen aparat
+\\item \\textbf{OL} na displeju znači:
+a) Niska baterija \\quad b) Prekoračenje opsega \\quad c) Greška sonde
 
-\\item Mjerna jedinica za električni otpor je:\\\\[0.3em]
+\\item Mjerna jedinica za otpor je:
 a) Volt \\quad b) Amper \\quad c) Om \\quad d) Herc
+}
 \\end{enumerate}
 
-\\vspace{1.2em}
+\\vspace{0.4em}
 
-% ----- ZADATAK 2 -----
-\\textbf{2. TAČNO / NETAČNO} \\hfill \\textit{(5 bodova)}
+% ----- ZADATAK 2: TAČNO/NETAČNO (5b) -----
+{\\small\\textbf{2. TAČNO / NETAČNO} \\hfill \\textit{(5 bodova)}}
+\\vspace{0.2em}
 
-\\vspace{0.6em}
-
-\\begin{enumerate}[label=\\textbf{2.\\arabic*.}, leftmargin=*, itemsep=1em]
-\\item Otpor se može mjeriti dok je krug pod naponom. \\hfill T / N
-
-\\item Crna sonda se spaja na COM priključak. \\hfill T / N
-
+\\begin{enumerate}[label=\\textbf{\\small 2.\\arabic*.}, leftmargin=*, itemsep=0.3em, topsep=0.2em]
+{\\small
+\\item Otpor se može mjeriti u uključenom krugu. \\hfill T / N
+\\item Crna sonda ide na COM priključak. \\hfill T / N
 \\item Za mjerenje struje treba prekinuti krug. \\hfill T / N
-
 \\item DC napon periodično mijenja smjer. \\hfill T / N
-
-\\item Digitalni multimetar ima bolju čitljivost. \\hfill T / N
+\\item Digitalni multimetar ima bolju čitljivost od analognog. \\hfill T / N
+}
 \\end{enumerate}
 
-\\vspace{1.2em}
+\\vspace{0.4em}
 
-% ----- ZADATAK 3 -----
-\\textbf{3. DOPUNI REČENICE} \\hfill \\textit{(6 bodova)}
+% ----- ZADATAK 3: DOPUNI (5b) -----
+{\\small\\textbf{3. DOPUNI REČENICE} \\hfill \\textit{(5 bodova)}}
+\\vspace{0.2em}
 
-\\vspace{0.6em}
-
-\\begin{enumerate}[label=\\textbf{3.\\arabic*.}, leftmargin=*, itemsep=1em]
-\\item Električni napon je razlika \\linija između dvije tačke u električnom krugu.
-
-\\item Električna struja je usmjereno kretanje \\linija čestica kroz provodnik.
-
+\\begin{enumerate}[label=\\textbf{\\small 3.\\arabic*.}, leftmargin=*, itemsep=0.4em, topsep=0.2em]
+{\\small
+\\item Električni napon je razlika \\linija između dvije tačke.
+\\item Električna struja mjeri se u \\linija.
 \\item Električni otpor se mjeri u \\linija.
-
-\\item Rotacijski prekidač služi za odabir \\linija i mjernog opsega.
-
-\\item Crvena sonda se spaja na priključak označen sa \\linija.
-
-\\item Rezolucija je \\linija promjena koju instrument može detektovati.
+\\item Crvena sonda spaja se na priključak \\linija.
+\\item Rotacijski prekidač služi za odabir \\linija.
+}
 \\end{enumerate}
 
 \\columnbreak
 
-% ----- ZADATAK 4 -----
-\\textbf{4. POVEŽI POJMOVE} \\hfill \\textit{(5 bodova)}
+% ----- ZADATAK 4: POVEŽI (5b) -----
+{\\small\\textbf{4. POVEŽI POJMOVE} \\hfill \\textit{(5 bodova)}}
+\\vspace{0.2em}
 
-\\vspace{0.6em}
-
-\\begin{tabular}{|c|p{2.8cm}|c|p{3.5cm}|}
+{\\small
+\\begin{tabular}{|c|p{2.3cm}|c|p{2.8cm}|}
 \\hline
 \\textbf{} & \\textbf{Pojam} & \\textbf{} & \\textbf{Objašnjenje}\\\\
 \\hline
-& & & \\\\[-0.5em]
-1 & V= (DC) & A & Nuliranje vrijednosti\\\\[0.3em]
+1 & V= (DC) & A & Nuliranje vrijednosti\\\\
 \\hline
-& & & \\\\[-0.5em]
-2 & 4-žični metod & B & Istosmjerni napon\\\\[0.3em]
+2 & 4-žični metod & B & Istosmjerni napon\\\\
 \\hline
-& & & \\\\[-0.5em]
-3 & REL funkcija & C & Blizina izmj. vrijednosti\\\\[0.3em]
+3 & REL funkcija & C & Blizina izmj. vrijed.\\\\
 \\hline
-& & & \\\\[-0.5em]
-4 & Preciznost & D & Kelvinovo mjerenje\\\\[0.3em]
+4 & Preciznost & D & Kelvinovo mjerenje\\\\
 \\hline
-& & & \\\\[-0.5em]
-5 & Tačnost & E & Blizina stvarnoj vrijed.\\\\[0.3em]
+5 & Tačnost & E & Blizina stvarnoj vrijed.\\\\
 \\hline
 \\end{tabular}
 
-\\vspace{0.8em}
 \\textbf{Odgovori:} 1-\\kratka 2-\\kratka 3-\\kratka 4-\\kratka 5-\\kratka
-
-\\vspace{1.5em}
-
-% ----- ZADATAK 5 -----
-\\textbf{5. KRATKI ODGOVORI} \\hfill \\textit{(8 bodova)}
-
-\\vspace{0.6em}
-
-\\begin{enumerate}[label=\\textbf{5.\\arabic*.}, leftmargin=*, itemsep=0.5em]
-\\item Šta je digitalni multimetar? \\textit{(2b)}
-
-\\vspace{1.8cm}
-
-\\item Navedi 3 osnovne električne veličine koje mjeri multimetar. \\textit{(3b)}
-
-\\vspace{1.8cm}
-
-\\item Koja je razlika između DC i AC napona? \\textit{(3b)}
-
-\\vspace{2cm}
-
-\\end{enumerate}
-
-% ----- ZADATAK 6 -----
-\\textbf{6. NABRAJANJE} \\hfill \\textit{(6 bodova)}
-
-\\vspace{0.6em}
-
-\\begin{enumerate}[label=\\textbf{6.\\arabic*.}, leftmargin=*, itemsep=0.8em]
-\\item Navedi tri prednosti digitalnog nad analognim multimetrom: \\textit{(3b)}
-
-\\vspace{0.4em}
-a) \\linija\\\\[0.6em]
-b) \\linija\\\\[0.6em]
-c) \\linija
+}
 
 \\vspace{0.5em}
 
-\\item Navedi tri osnovna dijela digitalnog multimetra: \\textit{(3b)}
+% ----- ZADATAK 5: KRATKI ODGOVORI (9b) -----
+{\\small\\textbf{5. KRATKI ODGOVORI} \\hfill \\textit{(9 bodova)}}
+\\vspace{0.2em}
 
-\\vspace{0.4em}
-a) \\linija\\\\[0.6em]
-b) \\linija\\\\[0.6em]
-c) \\linija
+\\begin{enumerate}[label=\\textbf{\\small 5.\\arabic*.}, leftmargin=*, itemsep=0.3em, topsep=0.2em]
+{\\small
+\\item Šta je digitalni multimetar? \\textit{(3b)}
+
+\\vspace{1.3cm}
+
+\\item Navedi 3 el. veličine koje mjeri multimetar. \\textit{(3b)}
+
+\\vspace{1.3cm}
+
+\\item Razlika između DC i AC napona? \\textit{(3b)}
+
+\\vspace{1.3cm}
+}
+\\end{enumerate}
+
+% ----- ZADATAK 6: NABRAJANJE (6b) -----
+{\\small\\textbf{6. NABRAJANJE} \\hfill \\textit{(6 bodova)}}
+\\vspace{0.2em}
+
+\\begin{enumerate}[label=\\textbf{\\small 6.\\arabic*.}, leftmargin=*, itemsep=0.3em, topsep=0.2em]
+{\\small
+\\item Tri prednosti digitalnog multimetra: \\textit{(3b)}
+
+a) \\linija\\\\ b) \\linija\\\\ c) \\linija
+
+\\item Tri osnovna dijela multimetra: \\textit{(3b)}
+
+a) \\linija\\\\ b) \\linija\\\\ c) \\linija
+}
+\\end{enumerate}
+
+\\end{multicols}
+
+\\vspace{0.2em}
+\\hrule
+\\begin{flushright}
+{\\small\\textit{Okreni list} $\\rightarrow$}
+\\end{flushright}
+
+\\newpage
+
+% ==================== STRANA 2 ====================
+\\begin{multicols}{2}
+\\setlength{\\parskip}{0.1em}
+
+% ----- ZADATAK 7: SPAJANJE (6b) -----
+{\\small\\textbf{7. SPAJANJE MULTIMETRA} \\hfill \\textit{(6 bodova)}}
+\\vspace{0.2em}
+
+\\begin{enumerate}[label=\\textbf{\\small 7.\\arabic*.}, leftmargin=*, itemsep=0.3em, topsep=0.2em]
+{\\small
+\\item Kako se spaja za mjerenje NAPONA? \\textit{(2b)}
+
+\\vspace{1.5cm}
+
+\\item Kako se spaja za mjerenje STRUJE? \\textit{(2b)}
+
+\\vspace{1.5cm}
+
+\\item Zašto prekinuti krug pri mjerenju struje? \\textit{(2b)}
+
+\\vspace{1.5cm}
+}
+\\end{enumerate}
+
+\\vspace{0.3em}
+
+% ----- ZADATAK 8: MJERENJE OTPORA (6b) -----
+{\\small\\textbf{8. MJERENJE OTPORA} \\hfill \\textit{(6 bodova)}}
+\\vspace{0.2em}
+
+\\begin{enumerate}[label=\\textbf{\\small 8.\\arabic*.}, leftmargin=*, itemsep=0.3em, topsep=0.2em]
+{\\small
+\\item Zašto otpor NE mjeriti u uključenom krugu? \\textit{(2b)}
+
+\\vspace{1.5cm}
+
+\\item Princip mjerenja otpora multimetrom. \\textit{(2b)}
+
+\\vspace{1.5cm}
+
+\\item Šta je 4-žični (Kelvin) metod? \\textit{(2b)}
+
+\\vspace{1.5cm}
+}
+\\end{enumerate}
+
+\\columnbreak
+
+% ----- ZADATAK 9: SONDE I SIGURNOST (5b) -----
+{\\small\\textbf{9. SONDE I SIGURNOST} \\hfill \\textit{(5 bodova)}}
+\\vspace{0.2em}
+
+\\begin{enumerate}[label=\\textbf{\\small 9.\\arabic*.}, leftmargin=*, itemsep=0.3em, topsep=0.2em]
+{\\small
+\\item Gdje se spaja crna/crvena sonda? \\textit{(2b)}
+
+\\vspace{1.3cm}
+
+\\item Tri sigurnosna pravila: \\textit{(3b)}
+
+a) \\linija\\\\ b) \\linija\\\\ c) \\linija
+}
+\\end{enumerate}
+
+\\vspace{0.5em}
+
+% ----- ZADATAK 10: POJMOVI (8b) -----
+{\\small\\textbf{10. POJMOVI I FUNKCIJE} \\hfill \\textit{(8 bodova)}}
+\\vspace{0.2em}
+
+\\begin{enumerate}[label=\\textbf{\\small 10.\\arabic*.}, leftmargin=*, itemsep=0.3em, topsep=0.2em]
+{\\small
+\\item Šta je el. struja i njena mjerna jedinica? \\textit{(2b)}
+
+\\vspace{1.3cm}
+
+\\item Šta znače V= i V\\textasciitilde{} na multimetru? \\textit{(2b)}
+
+\\vspace{1.3cm}
+
+\\item Razlika između tačnosti i preciznosti? \\textit{(2b)}
+
+\\vspace{1.3cm}
+
+\\item Čemu služi REL funkcija na multimetru? \\textit{(2b)}
+
+\\vspace{1.3cm}
+}
 \\end{enumerate}
 
 \\end{multicols}
 
 \\vspace{0.3em}
 \\hrule
-\\begin{flushright}
-\\textit{Okreni list} $\\rightarrow$
-\\end{flushright}
-
-\\newpage
-
-% ==================== STRANA 2 (ZADNJA) ====================
-
-\\begin{multicols}{2}
-
-% ----- ZADATAK 7 -----
-\\textbf{7. SPAJANJE MULTIMETRA} \\hfill \\textit{(6 bodova)}
-
-\\vspace{0.8em}
-
-\\begin{enumerate}[label=\\textbf{7.\\arabic*.}, leftmargin=*, itemsep=0.6em]
-\\item Kako se multimetar spaja za mjerenje NAPONA? \\textit{(2b)}
-
-\\vspace{1.8cm}
-
-\\item Kako se multimetar spaja za mjerenje STRUJE? \\textit{(2b)}
-
-\\vspace{1.8cm}
-
-\\item Zašto je potrebno prekinuti krug prije mjerenja struje? \\textit{(2b)}
-
-\\vspace{2cm}
-
-\\end{enumerate}
-
-\\vspace{1em}
-
-% ----- ZADATAK 8 -----
-\\textbf{8. MJERENJE OTPORA} \\hfill \\textit{(6 bodova)}
-
-\\vspace{0.8em}
-
-\\begin{enumerate}[label=\\textbf{8.\\arabic*.}, leftmargin=*, itemsep=0.6em]
-\\item Zašto se otpor NE smije mjeriti u uključenom krugu? \\textit{(2b)}
-
-\\vspace{1.8cm}
-
-\\item Objasni osnovni princip mjerenja otpora multimetrom. \\textit{(2b)}
-
-\\vspace{1.8cm}
-
-\\item Šta predstavlja 4-žični (Kelvin) metod mjerenja? \\textit{(2b)}
-
-\\vspace{2cm}
-
-\\end{enumerate}
-
-\\columnbreak
-
-% ----- ZADATAK 9 -----
-\\textbf{9. SONDE I SIGURNOST} \\hfill \\textit{(5 bodova)}
-
-\\vspace{0.8em}
-
-\\begin{enumerate}[label=\\textbf{9.\\arabic*.}, leftmargin=*, itemsep=0.6em]
-\\item Gdje se spaja crna, a gdje crvena mjerna sonda? \\textit{(2b)}
-
-\\vspace{1.8cm}
-
-\\item Navedi tri sigurnosna pravila pri radu sa multimetrom: \\textit{(3b)}
-
-\\vspace{0.5em}
-a) \\linija\\\\[0.8em]
-b) \\linija\\\\[0.8em]
-c) \\linija
-\\end{enumerate}
-
-\\vspace{1.2em}
-
-% ----- ZADATAK 10 -----
-\\textbf{10. POJMOVI I FUNKCIJE} \\hfill \\textit{(8 bodova)}
-
-\\vspace{0.8em}
-
-\\begin{enumerate}[label=\\textbf{10.\\arabic*.}, leftmargin=*, itemsep=0.6em]
-\\item Šta je električna struja i koja je njena mjerna jedinica? \\textit{(2b)}
-
-\\vspace{1.8cm}
-
-\\item Šta znače oznake V= i V\\textasciitilde{} na multimetru? \\textit{(2b)}
-
-\\vspace{1.8cm}
-
-\\item Objasni razliku između tačnosti i preciznosti mjerenja. \\textit{(2b)}
-
-\\vspace{1.8cm}
-
-\\item Čemu služi funkcija REL (relative) na multimetru? \\textit{(2b)}
-
-\\vspace{2cm}
-
-\\end{enumerate}
-
-\\end{multicols}
-
-\\vspace{2.7em}
-\\hrule
-\\vspace{0.5em}
-
-\\vspace{2.5em}
-\\begin{multicols}{2}
-
-\\textbf{11. BONUS ZADATAK} \\hfill \\textit{(+5 bodova)}
-
-\\vspace{2.5em}
-
-Na kojem principu digitalni multimetar mjeri istosmjernu struju? Objasni detaljno.
-
-\\vspace{0.5cm}
-
-\\columnbreak
+\\vspace{0.3em}
 
 \\begin{center}
-\\textbf{TABELA BODOVANJA}\\\\[0.8em]
-\\begin{tabular}{|c|c|c|c|c|c|c|}
+{\\small\\textbf{TABELA BODOVANJA}}\\\\[0.3em]
+{\\small
+\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
 \\hline
-\\textbf{Zadatak} & 1-2 & 3-4 & 5-6 & 7-8 & 9-10 & 11\\\\
+\\textbf{Zad.} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10\\\\
 \\hline
-& & & & & & \\\\[-0.3em]
-\\textbf{Max} & 10 & 11 & 14 & 12 & 13 & +5\\\\[0.3em]
+\\textbf{Max} & 5 & 5 & 5 & 5 & 9 & 6 & 6 & 6 & 5 & 8\\\\
 \\hline
-& & & & & & \\\\[-0.3em]
-\\textbf{Osvojeno} & & & & & & \\\\[0.3em]
+\\textbf{Osv.} & & & & & & & & & & \\\\
 \\hline
-\\end{tabular}\\\\[1em]
-\\textbf{UKUPNO: \\_\\_\\_\\_\\_\\_ / 50 (+5)}\\\\[0.8em]
+\\end{tabular}\\\\[0.5em]
+\\textbf{UKUPNO: \\_\\_\\_\\_\\_ / 50}
+}
 \\end{center}
 
-\\end{multicols}
+\\vspace{0.5em}
+\\begin{flushright}
+{\\small\\textbf{Potpis nastavnika:} \\underline{\\hspace{4cm}}}
+\\end{flushright}
 
 \\end{document}`;
 
@@ -824,50 +792,51 @@ async function generatePriprema() {
   showLoading();
   document.getElementById('pdfSection').classList.remove('visible');
 
-  const systemPrompt = `Ti si iskusan nastavnik i LaTeX ekspert koji generiše testove znanja.
-Dobijas kompletan LaTeX test kao referencu. Generišeš NOVI test sa novim pitanjima za zadanu temu.
+  const systemPrompt = `Ti si LaTeX ekspert koji generiše testove znanja striktno na 2 stranice A4.
 
-STRIKTNA PRAVILA — MORA SE POŠTOVATI SVAKO:
+APSOLUTNA PRAVILA — NIJEDNO SE NE SMIJE PREKRŠITI:
 
-=== OGRANIČENJE STRANICA (NAJVAŽNIJE) ===
-- Test MORA stati na TAČNO 2 stranice A4 — apsolutno ne smije biti više
-- Stranica 1: zadaci 1-6 u multicols{2}
-- Stranica 2: zadaci 7-11 + tabela bodovanja u multicols{2}
-- Između stranica MORA biti \\newpage
-- Prostori za odgovore (\\vspace) moraju biti MALI: max 2cm za kratke, max 2.5cm za duge
-- Ako zadatak ima previše teksta — skrati pitanje, ne povećavaj prostor
-- ZABRANJENO: dodavati nove zadatke, povećavati \\vspace, dodavati \\newpage unutar stranice
+=== STRANICE ===
+- Test MORA biti TAČNO 2 stranice A4 — bez izuzetka
+- Stranica 1: zadaci 1-6 unutar \begin{multicols}{2}...\end{multicols}
+- \newpage između stranica — JEDINI newpage u dokumentu
+- Stranica 2: zadaci 7-10 + tabela bodovanja unutar multicols{2}
+- NEMA bonus zadatka — uklonjen je iz strukture
+- ZABRANJENO: dodavati \newpage osim između str.1 i str.2
 
-=== STRUKTURA (IDENTIČNA REFERENTNOM DOKUMENTU) ===
-1. Preambula identična: documentclass[a4paper,10pt], geometry margin=1cm, multicols, fancyhdr
-2. \\newcommand{\\linija} i \\newcommand{\\kratka} moraju biti definirani
-3. Zaglavlje učenika (Ime, Razred, Datum, Bodovi/ukupno) — identičan format
-4. multicols{2} na obje stranice
-5. hrule + "Okreni list" na kraju prve stranice — OBAVEZNO
-6. Zadaci 1-6 na prvoj strani, zadaci 7-11 na drugoj strani
-7. Tabela bodovanja na kraju — mora odgovarati bodovima
+=== KOMPAKTNOST (KRITIČNO) ===
+- Font: \small ili \footnotesize za tekst pitanja — OBAVEZNO
+- vspace za odgovore: MAKSIMALNO 1.5cm — nikad više
+- itemsep: 0.3em — nikad više
+- parskip: 0.1em — nikad više  
+- Pitanja pisati KRATKO i SAŽETO — max 1 red po pitanju
+- Ako pitanje ne stane u 1 red — skrati ga na pola
+- \setlength{\parskip}{0.1em} i \setlength{\itemsep}{0pt} na početku multicols
 
-=== TIPOVI ZADATAKA (ne mijenjaj tipove, samo pitanja) ===
-- Zad. 1: Višestruki izbor (5 pitanja, a/b/c/d)
-- Zad. 2: Tačno/Netačno (5 tvrdnji)
-- Zad. 3: Dopuni rečenice (6 rečenica sa \\linija)
-- Zad. 4: Poveži pojmove (tabela 5 pojmova + 5 objašnjenja)
-- Zad. 5: Kratki odgovori (3 pitanja, max \\vspace{2cm})
-- Zad. 6: Nabrajanje (2 podzadatka sa a/b/c)
-- Zad. 7-8: Esejska pitanja (3 podzadatka, max \\vspace{2cm})
-- Zad. 9: Sonde/Sigurnost ili tematski ekvivalent
-- Zad. 10: Pojmovi i funkcije (4 podzadatka)
-- Zad. 11: Bonus zadatak (1 pitanje)
+=== STRUKTURA ZADATAKA ===
+- Zad. 1: Višestruki izbor — 5 pitanja, odgovori a)b)c) ili a)b)c)d) u ISTOM redu
+- Zad. 2: Tačno/Netačno — 5 kratkih tvrdnji, T/N na kraju reda
+- Zad. 3: Dopuni rečenice — 5 kratkih rečenica sa \linija
+- Zad. 4: Poveži pojmove — tabela 5×2, kompaktna
+- Zad. 5: Kratki odgovori — 3 pitanja, vspace 1.3cm svaki
+- Zad. 6: Nabrajanje — 2 podzadatka, a)b)c) linija u istom redu
+- Zad. 7: 3 esejska pitanja, vspace 1.5cm svaki
+- Zad. 8: 3 esejska pitanja, vspace 1.5cm svaki
+- Zad. 9: 2 podzadatka (sonde + sigurnost), vspace 1.3cm
+- Zad. 10: 4 kratka pitanja, vspace 1.3cm svaki
+- Tabela bodovanja: kompaktna, horizontalna, na dnu str.2
+- NEMA zadatka 11 — bonus je uklonjen
 
 === SADRŽAJ ===
-- Pitanja STRUČNO TAČNA za zadanu temu i predmet
-- Ukupno bodova TOČNO onoliko koliko je zadano
-- Težina pitanja prema zadanoj težini (lakši/srednji/teži)
+- Pitanja STRUČNO TAČNA za zadanu temu
+- Ukupno bodova TOČNO prema zadanom parametru
+- Bodovi po zadacima moraju biti logično raspoređeni da zbroje tačan ukupan broj
+- Težina prema zadanom parametru
 - Jezik: bosanski/hrvatski ijekavica
 
-=== FORMAT ODGOVORA ===
-- Vrati SAMO čisti LaTeX od \\documentclass do \\end{document}
-- Bez markdown, bez objašnjenja, bez komentara`;
+=== ODGOVOR ===
+- SAMO čisti LaTeX od \documentclass do \end{document}
+- Bez markdown, bez objašnjenja`;
 
   const userPrompt = `Referentni LaTeX dokument (template testa):
 
@@ -884,12 +853,13 @@ GENERIŠI TEST ZA:
 - Težina: ${tezina}
 ${napomene ? `- Napomene: ${napomene}` : ''}
 
-STRIKTNO UPOZORENJE:
-- Test MORA stati na TAČNO 2 stranice A4 — ni jedan red više
-- Prostori za odgovore (vspace) moraju biti identični referentnom dokumentu ili manji
-- Ne dodavaj nova pitanja, ne proširuj zadatke
-- Zadrži identičan broj pitanja i tipova zadataka kao u referenci
-- Ako tema zahtijeva duže formulacije, skrati tekst pitanja da stane
+STRIKTNO UPOZORENJE — KRITIČNO:
+- Test MORA stati na TAČNO 2 stranice A4
+- Koristi \small za sav tekst pitanja
+- vspace MAKSIMALNO 1.5cm — manji ako treba
+- Pitanja pisati KRATKO — skrati ako je predugačko
+- NEMA bonus zadatka (zadatak 11)
+- NEMA dodatnih \newpage osim između stranica
 - Vrati kompletan LaTeX dokument`;
 
   try {

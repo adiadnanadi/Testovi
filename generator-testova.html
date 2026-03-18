@@ -867,9 +867,10 @@ async function generateTest() {
   // Update banner immediately with entered data
   updateBanner(predmet, tema);
 
-  const systemPrompt = `Ti si LaTeX ekspert koji generiše testove znanja za srednje škole. Generiši kompletan, kompajlabilan LaTeX dokument koji popunjava tačno 2 stranice A4.
+  const systemPrompt = `Ti si LaTeX ekspert koji generiše testove znanja za srednje škole.
+Generiši TAČNO 2 stranice A4 — ni više ni manje.
 
-PREAMBLE — koristi TAČNO ovako:
+PREAMBLE (kopiraj doslovno, zamijeni samo [PREDMET] i [TEMA]):
 \\documentclass[a4paper,10pt]{article}
 \\usepackage[utf8]{inputenc}
 \\usepackage[T1]{fontenc}
@@ -887,41 +888,69 @@ PREAMBLE — koristi TAČNO ovako:
 \\fancyfoot[C]{\\small\\thepage}
 \\renewcommand{\\headrulewidth}{0.4pt}
 \\setlength{\\parindent}{0pt}
-\\setlength{\\parskip}{0.15em}
+\\setlength{\\parskip}{0.1em}
 \\setlength{\\columnsep}{0.8cm}
 \\newcommand{\\linija}{\\underline{\\hspace{3cm}}}
 \\newcommand{\\kratka}{\\underline{\\hspace{1cm}}}
 
-STRUKTURA DOKUMENTA:
-- Zaglavlje: Ime i prezime / Razred / Datum / Bodovi — jedan red pa \\hrule
-- STRANICA 1: \\begin{multicols}{2} — zadaci 1 do 6, zatim \\end{multicols}, pa \\hrule
-- \\newpage
-- STRANICA 2: \\begin{multicols}{2} — zadaci 7 do 10, zatim \\end{multicols}, pa tabela bodovanja, pa potpis
+STRANICA 1 — STROGA OGRANICENJA:
+Stranica 1 sadrzi zadatke 1-6 unutar \\begin{multicols}{2} ... \\end{multicols}.
+STRANICA 1 NE SMIJE NIKADA PRELAZITI NA STRANICU 2.
+Ako bi sadrzaj prelazio, IZBACI POSLJEDNJE pitanje iz zadatka i smanji bodove.
+Broj pitanja koji SIGURNO stane (ne povecavaj):
+- Zadatak 1 — Visestruki izbor: TACNO 5 pitanja (a/b/c/d), itemsep=0.6em
+- Zadatak 2 — Tacno/Netacno: TACNO 5 tvrdnji, itemsep=0.6em
+- Zadatak 3 — Dopuni recenice: TACNO 4 recenice sa \\linija, itemsep=0.65em
+- Zadatak 4 — Povezi pojmove: tabela TACNO 4 reda (|c|p{2.3cm}|c|p{2.8cm}|)
+- Zadatak 5 — Kratki odgovori: TACNO 3 pitanja, svako \\vspace{1.4cm}
+- Zadatak 6 — Nabrajanje: TACNO 2 podpitanja po 3 stavke (a/b/c sa \\linija)
+Razmaci izmedu zadataka na str. 1: \\vspace{0.65em}
+Stranica 1 zavrsava: \\end{multicols} pa \\hrule pa \\newpage
 
-BROJ PITANJA PO ZADATKU (obavezno, ne mijenjaj):
-- Zadatak 1 — Višestruki izbor: 6 pitanja svako a/b/c/d, itemsep=0.75em
-- Zadatak 2 — Tačno/Netačno: 6 tvrdnji, itemsep=0.75em
-- Zadatak 3 — Dopuni rečenice: 5 rečenica sa \\linija, itemsep=0.8em
-- Zadatak 4 — Poveži pojmove: tabela 5 redova (|c|p{2.3cm}|c|p{2.8cm}|)
-- Zadatak 5 — Kratki odgovori: 3 pitanja, svako \\vspace{2.0cm}
-- Zadatak 6 — Nabrajanje: 2 podpitanja po 3 stavke (a/b/c sa \\linija)
-- Zadaci 7 i 8 — svaki 3 podpitanja, svako \\vspace{2.2cm}
-- Zadaci 9 i 10 — svaki 3 podpitanja, svako \\vspace{2.5cm}
+STRANICA 2 — STROGA OGRANICENJA:
+Stranica 2 sadrzi zadatke 7-10 unutar \\begin{multicols}{2} ... \\end{multicols},
+zatim tabela bodovanja, zatim potpis nastavnika.
+STRANICA 2 NE SMIJE NIKADA PRELAZITI NA STRANICU 3.
+Broj pitanja koji SIGURNO stane (ne povecavaj):
+- Zadatak 7 — TACNO 3 podpitanja, svako \\vspace{2.0cm}
+- Zadatak 8 — TACNO 3 podpitanja, svako \\vspace{2.0cm}
+- Zadatak 9 — TACNO 3 podpitanja, svako \\vspace{2.0cm}
+- Zadatak 10 — TACNO 3 podpitanja, svako \\vspace{2.0cm}
+Razmaci izmedu zadataka na str. 2: \\vspace{1.1em}
+Stranica 2 zavrsava: \\end{multicols} pa \\hrule pa tabela bodovanja pa potpis
 
-RAZMACI:
-- \\vspace{0.9em} između zadataka na str. 1
-- \\vspace{1.4em} između zadataka na str. 2
-- Font \\small za sva pitanja
+TABELA BODOVANJA (na kraju str. 2):
+\\vspace{0.3em}
+\\hrule
+\\vspace{0.3em}
+\\begin{center}
+{\\small\\textbf{TABELA BODOVANJA}}\\\\[0.3em]
+{\\small
+\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+\\hline
+\\textbf{Zad.} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10\\\\
+\\hline
+\\textbf{Max} & X & X & X & X & X & X & X & X & X & X\\\\
+\\hline
+\\textbf{Osv.} & & & & & & & & & & \\\\
+\\hline
+\\end{tabular}\\\\[0.4em]
+\\textbf{UKUPNO: \\_\\_\\_ / [ukupno]}
+}
+\\end{center}
+\\vspace{0.4em}
+\\begin{flushright}
+{\\small\\textbf{Potpis nastavnika:} \\underline{\\hspace{4cm}}}
+\\end{flushright}
 
-PRAVILA ZA IZBJEGAVANJE COMPILE GREŠAKA:
-- NE koristiti \\vfill unutar multicols okruženja — pravi grešku
-- NE koristiti \\newcolumn — koristi \\columnbreak samo ako je nužno
-- Sve tabele: tačan broj & separatora u svakom redu
+PRAVILA ZA IZBJEGAVANJE COMPILE GRESAKA:
+- NE koristiti \\vfill unutar multicols — pravi compile gresku
+- NE koristiti \\newcolumn — samo \\columnbreak ako nuzno
+- Sve tabele: tacan broj & separatora u svakom redu
 - Svaki \\begin{X} mora imati \\end{X}
-- \\hspace i \\vspace uvijek sa argumentom u {vitičastim zagradama}
-- Unutar enumerate okruženja NE otvarati novi enumerate bez zatvaranja prethodnog
+- \\hspace i \\vspace uvijek sa {argumentom}
 
-FORMAT ODGOVORA: SAMO LaTeX kod od \\documentclass do \\end{document}. Apsolutno bez ikakvog teksta prije ili poslije.`;
+FORMAT ODGOVORA: SAMO LaTeX od \\documentclass do \\end{document}. Bez ikakvog drugog teksta.`;
 
   const userPrompt = `Generiši test sa ovim podacima:
 - Škola: ${skola}
@@ -933,10 +962,13 @@ FORMAT ODGOVORA: SAMO LaTeX kod od \\documentclass do \\end{document}. Apsolutno
 - Težina: ${tezina}
 ${napomene ? `- Napomene: ${napomene}` : ''}
 
-Sva pitanja moraju biti konkretno vezana za temu "${tema}" iz predmeta "${predmet}".
-Koristi stručnu terminologiju primjerenu ${razred} razredu.
-Zbir bodova svih zadataka mora biti tačno ${ukupnoBodova}.
-Vrati SAMO kompletan LaTeX dokument bez ikakvog drugog teksta.`;
+KRITIČNO:
+1. Stranica 1 = SAMO zadaci 1-6, NIKADA ne prelazi na str. 2
+2. Stranica 2 = SAMO zadaci 7-10 + tabela + potpis, NIKADA ne prelazi na str. 3
+3. Ako pitanje ne stane — IZBACI ga, ne prelijevaj
+4. Zbir bodova svih zadataka = tačno ${ukupnoBodova}
+5. Sva pitanja vezana za temu "${tema}" iz predmeta "${predmet}"
+Vrati SAMO kompletan LaTeX dokument.
 
 
   try {

@@ -884,9 +884,11 @@ PREAMBLE (kopiraj doslovno, zamijeni samo [PREDMET] i [TEMA]):
 \\raggedbottom
 \\pagestyle{fancy}
 \\fancyhf{}
-\\fancyhead[C]{\\small\\textbf{TEST IZ [PREDMET] -- [TEMA]}}
-\\fancyfoot[C]{\\small\\thepage}
-\\renewcommand{\\headrulewidth}{0.4pt}
+\\fancyhead[L]{\\small\\textit{[SKOLA]}}
+\\fancyhead[C]{\\normalsize\\textbf{TEST IZ [PREDMET] -- [TEMA]}}
+\\fancyhead[R]{\\small\\textit{[NASTAVNIK]}}
+\\fancyfoot[C]{\\small Stranica \\thepage}
+\\renewcommand{\\headrulewidth}{1.2pt}
 \\setlength{\\parindent}{0pt}
 \\setlength{\\parskip}{0.1em}
 \\setlength{\\columnsep}{0.8cm}
@@ -912,11 +914,11 @@ Stranica 2 sadrzi zadatke 7-10 unutar \\begin{multicols}{2} ... \\end{multicols}
 zatim tabela bodovanja, zatim potpis nastavnika.
 STRANICA 2 NE SMIJE NIKADA PRELAZITI NA STRANICU 3.
 Broj pitanja koji SIGURNO stane (ne povecavaj):
-- Zadatak 7 — TACNO 3 podpitanja, svako \\vspace{2.0cm}
-- Zadatak 8 — TACNO 3 podpitanja, svako \\vspace{2.0cm}
-- Zadatak 9 — TACNO 3 podpitanja, svako \\vspace{2.0cm}
-- Zadatak 10 — TACNO 3 podpitanja, svako \\vspace{2.0cm}
-Razmaci izmedu zadataka na str. 2: \\vspace{1.1em}
+- Zadatak 7 — TACNO 4 podpitanja, svako \\vspace{1.6cm}
+- Zadatak 8 — TACNO 4 podpitanja, svako \\vspace{1.6cm}
+- Zadatak 9 — TACNO 4 podpitanja, svako \\vspace{1.6cm}
+- Zadatak 10 — TACNO 4 podpitanja, svako \\vspace{1.6cm}
+Razmaci izmedu zadataka na str. 2: \\vspace{0.9em}
 Stranica 2 zavrsava: \\end{multicols} pa \\hrule pa tabela bodovanja pa potpis
 
 TABELA BODOVANJA (na kraju str. 2):
@@ -968,6 +970,7 @@ KRITIČNO:
 3. Ako pitanje ne stane — IZBACI ga, ne prelijevaj
 4. Zbir bodova svih zadataka = tačno ${ukupnoBodova}
 5. Sva pitanja vezana za temu "${tema}" iz predmeta "${predmet}"
+6. Header mora biti vidljiv — sadrži školu lijevo, naziv testa u sredini, nastavnika desno
 Vrati SAMO kompletan LaTeX dokument.`;
 
 

@@ -565,6 +565,8 @@ const ORIGINAL_DOC = `\\documentclass[a4paper,10pt]{article}
 \\usepackage[T1]{fontenc}
 \\usepackage[croatian]{babel}
 \\usepackage[margin=0.8cm, top=0.8cm, bottom=0.8cm]{geometry}
+\\setlength{\\headheight}{18pt}
+\\setlength{\\headsep}{10pt}
 \\usepackage{enumitem}
 \\usepackage{multicol}
 \\usepackage{array}
@@ -876,6 +878,8 @@ PREAMBLE (kopiraj doslovno, zamijeni samo [PREDMET] i [TEMA]):
 \\usepackage[T1]{fontenc}
 \\usepackage[croatian]{babel}
 \\usepackage[margin=0.8cm, top=0.8cm, bottom=0.8cm]{geometry}
+\\setlength{\\headheight}{18pt}
+\\setlength{\\headsep}{10pt}
 \\usepackage{enumitem}
 \\usepackage{multicol}
 \\usepackage{array}
@@ -884,9 +888,9 @@ PREAMBLE (kopiraj doslovno, zamijeni samo [PREDMET] i [TEMA]):
 \\raggedbottom
 \\pagestyle{fancy}
 \\fancyhf{}
-\\fancyhead[L]{\\vspace{4pt}\\small\\textit{[SKOLA]}}
-\\fancyhead[C]{\\vspace{4pt}\\normalsize\\textbf{TEST IZ [PREDMET] -- [TEMA]}}
-\\fancyhead[R]{\\vspace{4pt}\\small\\textit{[NASTAVNIK]}}
+\\fancyhead[L]{\\small\\textit{[SKOLA]}}
+\\fancyhead[C]{\\normalsize\\textbf{TEST IZ [PREDMET] -- [TEMA]}}
+\\fancyhead[R]{\\small\\textit{[NASTAVNIK]}}
 \\fancyfoot[C]{\\small Stranica \\thepage}
 \\renewcommand{\\headrulewidth}{1.2pt}
 \\setlength{\\parindent}{0pt}

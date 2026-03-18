@@ -564,7 +564,7 @@ const ORIGINAL_DOC = `\\documentclass[a4paper,10pt]{article}
 \\usepackage[utf8]{inputenc}
 \\usepackage[T1]{fontenc}
 \\usepackage[croatian]{babel}
-\\usepackage[margin=0.9cm, top=1cm, bottom=1cm]{geometry}
+\\usepackage[margin=0.8cm, top=0.8cm, bottom=0.8cm]{geometry}
 \\usepackage{enumitem}
 \\usepackage{multicol}
 \\usepackage{array}
@@ -875,7 +875,7 @@ PREAMBLE (kopiraj doslovno, zamijeni samo [PREDMET] i [TEMA]):
 \\usepackage[utf8]{inputenc}
 \\usepackage[T1]{fontenc}
 \\usepackage[croatian]{babel}
-\\usepackage[margin=0.9cm, top=1cm, bottom=1cm]{geometry}
+\\usepackage[margin=0.8cm, top=0.8cm, bottom=0.8cm]{geometry}
 \\usepackage{enumitem}
 \\usepackage{multicol}
 \\usepackage{array}
@@ -900,25 +900,27 @@ Stranica 1 sadrzi zadatke 1-6 unutar \\begin{multicols}{2} ... \\end{multicols}.
 STRANICA 1 NE SMIJE NIKADA PRELAZITI NA STRANICU 2.
 Ako bi sadrzaj prelazio, IZBACI POSLJEDNJE pitanje iz zadatka i smanji bodove.
 Broj pitanja koji SIGURNO stane (ne povecavaj):
-- Zadatak 1 — Visestruki izbor: TACNO 5 pitanja (a/b/c/d), itemsep=0.6em
-- Zadatak 2 — Tacno/Netacno: TACNO 5 tvrdnji, itemsep=0.6em
-- Zadatak 3 — Dopuni recenice: TACNO 4 recenice sa \\linija, itemsep=0.65em
+- Zadatak 1 — Visestruki izbor: TACNO 5 pitanja (a/b/c/d), itemsep=0.45em
+- Zadatak 2 — Tacno/Netacno: TACNO 5 tvrdnji, itemsep=0.45em
+- Zadatak 3 — Dopuni recenice: TACNO 4 recenice sa \\linija, itemsep=0.5em
 - Zadatak 4 — Povezi pojmove: tabela TACNO 4 reda (|c|p{2.3cm}|c|p{2.8cm}|)
 - Zadatak 5 — Kratki odgovori: TACNO 3 pitanja, svako \\vspace{1.4cm}
 - Zadatak 6 — Nabrajanje: TACNO 2 podpitanja po 3 stavke (a/b/c sa \\linija)
-Razmaci izmedu zadataka na str. 1: \\vspace{0.65em}
+Razmaci izmedu zadataka na str. 1: \\vspace{0.5em}
 Stranica 1 zavrsava: \\end{multicols} pa \\hrule pa \\newpage
 
 STRANICA 2 — STROGA OGRANICENJA:
 Stranica 2 sadrzi zadatke 7-10 unutar \\begin{multicols}{2} ... \\end{multicols},
 zatim tabela bodovanja, zatim potpis nastavnika.
 STRANICA 2 NE SMIJE NIKADA PRELAZITI NA STRANICU 3.
+Ako tabela bodovanja ne stane — smanji \\vspace na str. 2 na 1.2cm.
+Ako i dalje ne stane — smanji na 1.0cm. Tabela MORA biti na str. 2.
 Broj pitanja koji SIGURNO stane (ne povecavaj):
-- Zadatak 7 — TACNO 4 podpitanja, svako \\vspace{1.6cm}
-- Zadatak 8 — TACNO 4 podpitanja, svako \\vspace{1.6cm}
-- Zadatak 9 — TACNO 4 podpitanja, svako \\vspace{1.6cm}
-- Zadatak 10 — TACNO 4 podpitanja, svako \\vspace{1.6cm}
-Razmaci izmedu zadataka na str. 2: \\vspace{0.9em}
+- Zadatak 7 — TACNO 3 podpitanja, svako \\vspace{1.5cm}
+- Zadatak 8 — TACNO 3 podpitanja, svako \\vspace{1.5cm}
+- Zadatak 9 — TACNO 3 podpitanja, svako \\vspace{1.5cm}
+- Zadatak 10 — TACNO 3 podpitanja, svako \\vspace{1.5cm}
+Razmaci izmedu zadataka na str. 2: \\vspace{0.7em}
 Stranica 2 zavrsava: \\end{multicols} pa \\hrule pa tabela bodovanja pa potpis
 
 TABELA BODOVANJA (na kraju str. 2):
